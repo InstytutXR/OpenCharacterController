@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if ENABLE_LEGACY_INPUT_MANAGER
+
+using UnityEngine;
 
 namespace ModularFirstPerson
 {
@@ -22,3 +24,5 @@ namespace ModularFirstPerson
         }
     }
 }
+
+#endif
