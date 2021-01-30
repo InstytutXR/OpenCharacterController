@@ -4,23 +4,23 @@ using UnityEngine;
 
 namespace ModularFirstPerson
 {
-    public sealed class LegacyLookInput : LookInput
+    public sealed class LegacyLookController : LookController
     {
         public string yawAxis = "Mouse X";
         public string pitchAxis = "Mouse Y";
         public bool invertPitchInput = false;
 
-        public override Vector2 GetLookDelta()
+        public override void UpdateLook(ref float yaw, ref float pitch)
         {
-            var yaw = Input.GetAxis(yawAxis);
+            yaw += Input.GetAxis(yawAxis);
 
-            var pitch = Input.GetAxis(pitchAxis);
+            var pitchDelta = Input.GetAxis(pitchAxis);
             if (invertPitchInput)
             {
-                pitch = -pitch;
+                pitchDelta = -pitchDelta;
             }
 
-            return new Vector2(yaw, pitch);
+            pitch += pitchDelta;
         }
     }
 }

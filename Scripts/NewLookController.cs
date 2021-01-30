@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace ModularFirstPerson
 {
-    public sealed class NewLookInput : LookInput
+    public sealed class NewLookController : LookController
     {
         private InputAction _action;
         private Vector2 _lookDelta;
@@ -37,9 +37,10 @@ namespace ModularFirstPerson
             }
         }
 
-        public override Vector2 GetLookDelta()
+        public override void UpdateLook(ref float yaw, ref float pitch)
         {
-            return _lookDelta;
+            yaw += _lookDelta.x;
+            pitch += _lookDelta.y;
         }
 
         private void OnLookActionPerformed(InputAction.CallbackContext ctx)
