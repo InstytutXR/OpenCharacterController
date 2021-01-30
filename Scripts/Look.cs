@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEngine.Mathf;
 
 namespace ModularFirstPerson
 {
@@ -7,10 +8,10 @@ namespace ModularFirstPerson
         private float _pitch = 0f;
         private float _yaw = 0f;
 
-        [SerializeField, Tooltip("The component that will provide the input used to look.")]
+        [SerializeField, Tooltip("The component responsible for applying changes to yaw/pitch based on input or other logic.")]
         private LookController _controller = default;
 
-        [SerializeField, Tooltip("The transform that will be controlled by the input.")]
+        [SerializeField, Tooltip("The transform that will be rotated based on the yaw/pitch values.")]
         private Transform _targetTransform = default;
 
         [Tooltip("The minimum pitch value allowed, specified in degrees.")]
@@ -23,8 +24,8 @@ namespace ModularFirstPerson
         {
             _controller.UpdateLook(ref _yaw, ref _pitch);
 
-            _pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
-            _yaw = Mathf.Repeat(_yaw, 360f);
+            _pitch = Clamp(_pitch, minPitch, maxPitch);
+            _yaw = Repeat(_yaw, 360f);
 
             _targetTransform.localEulerAngles = new Vector3(_pitch, _yaw, 0);
         }
