@@ -6,7 +6,7 @@ namespace ModularFirstPerson
     // This editor exists solely to provide the frame bounds so that pressing F
     // in the viewport correctly frames the character.
     [CustomEditor(typeof(CapsuleBody)), CanEditMultipleObjects]
-    public class CapsuleCharacterEditor : Editor
+    public class CapsuleBodyEditor : Editor
     {
         private bool HasFrameBounds() => true;
 
