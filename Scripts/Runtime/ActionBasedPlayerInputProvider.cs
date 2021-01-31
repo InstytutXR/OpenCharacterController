@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace ModularFirstPerson
 {
-    public sealed class NewPlayerInputProvider : PlayerInputProvider
+    public sealed class ActionBasedPlayerInputProvider : PlayerInputProvider
     {
         private InputAction _lookAction;
         private InputAction _moveAction;
@@ -13,14 +13,14 @@ namespace ModularFirstPerson
         private Vector2 _look;
         private Vector2 _move;
 
-        [SerializeField]
-        private PlayerInput _input = default;
+        [SerializeField, Tooltip("The PlayerInput component that has the desired actions.")]
+        private PlayerInput _playerInput = default;
 
         // TODO: In-editor validation of these values and/or some kind of nice action picker UI
-        [SerializeField]
+        [SerializeField, Tooltip("The name of an action that provides a Vector2 for turning and looking up/down.")]
         private string _lookActionName = "Look";
 
-        [SerializeField]
+        [SerializeField, Tooltip("The name of an action that provides a Vector2 for moving.")]
         private string _moveActionName = "Move";
 
         public override float lookHorizontal => _look.x;
@@ -29,11 +29,11 @@ namespace ModularFirstPerson
 
         private void OnEnable()
         {
-            _lookAction = _input.actions.FindAction(_lookActionName, throwIfNotFound: true);
+            _lookAction = _playerInput.actions.FindAction(_lookActionName, throwIfNotFound: true);
             _lookAction.performed += OnLookPerformed;
             _lookAction.canceled += OnLookCanceled;
 
-            _moveAction = _input.actions.FindAction(_moveActionName, throwIfNotFound: true);
+            _moveAction = _playerInput.actions.FindAction(_moveActionName, throwIfNotFound: true);
             _moveAction.performed += OnMovePerformed;
             _moveAction.canceled += OnMoveCanceled;
         }
@@ -49,9 +49,9 @@ namespace ModularFirstPerson
 
         private void OnValidate()
         {
-            if (!_input)
+            if (!_playerInput)
             {
-                _input = GetComponent<PlayerInput>();
+                _playerInput = GetComponent<PlayerInput>();
             }
         }
 
