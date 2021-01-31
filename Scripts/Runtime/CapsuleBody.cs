@@ -26,7 +26,7 @@ namespace ModularFirstPerson
         private CapsuleCollider _collider = default;
 
         [SerializeField, Tooltip("The component responsible for providing input to the motor.")]
-        private MovementInput _input;
+        private PlayerInputProvider _input;
 
         [SerializeField, Tooltip("The total height of the character. The capsule height is this value minus the step height.")]
         private float _height = 1.7f;
@@ -127,7 +127,7 @@ namespace ModularFirstPerson
         {
             CheckForGround();
 
-            var moveInput = _input.GetMovementInput();
+            var moveInput = _input.moveInput;
             ApplyUserInputMovement(in moveInput);
 
             _velocity = _controlVelocity + new Vector3(0, _verticalVelocity, 0);
@@ -395,7 +395,7 @@ namespace ModularFirstPerson
 
             if (!_input)
             {
-                _input = GetComponent<MovementInput>();
+                _input = GetComponent<PlayerInputProvider>();
             }
 
             ResizeCollider();

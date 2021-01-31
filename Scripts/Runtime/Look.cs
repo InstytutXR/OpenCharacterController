@@ -8,8 +8,8 @@ namespace ModularFirstPerson
         private float _pitch = 0f;
         private float _yaw = 0f;
 
-        [SerializeField, Tooltip("The component responsible for applying changes to yaw/pitch based on input or other logic.")]
-        private LookController _controller = default;
+        [SerializeField, Tooltip("The component that provides user input to process.")]
+        private PlayerInputProvider _input = default;
 
         [SerializeField, Tooltip("The transform that will be rotated based on the yaw/pitch values.")]
         private Transform _targetTransform = default;
@@ -22,19 +22,17 @@ namespace ModularFirstPerson
 
         private void Update()
         {
-            _controller.UpdateLook(ref _yaw, ref _pitch);
-
-            _pitch = Clamp(_pitch, minPitch, maxPitch);
-            _yaw = Repeat(_yaw, 360f);
+            _pitch = Clamp(_pitch + _input.lookVertical, minPitch, maxPitch);
+            _yaw = Repeat(_yaw + _input.lookHorizontal, 360f);
 
             _targetTransform.localEulerAngles = new Vector3(_pitch, _yaw, 0);
         }
 
         private void OnValidate()
         {
-            if (_controller == null)
+            if (_input == null)
             {
-                _controller = GetComponent<LookController>();
+                _input = GetComponent<PlayerInputProvider>();
             }
 
             if (!_targetTransform)
