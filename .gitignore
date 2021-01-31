@@ -8,3 +8,7 @@
 
 *.csproj
 *.sln
+
+# Probuilder saves local settings to the packages folder which isn't super
+# great for source control. :(
+/ProjectSettings/Packages/com.unity.probuilder/Settings.json
