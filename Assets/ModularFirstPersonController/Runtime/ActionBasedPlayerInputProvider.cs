@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace ModularFirstPerson
 {
+    [RequireComponent(typeof(PlayerInput))]
     public sealed class ActionBasedPlayerInputProvider : PlayerInputProvider
     {
         private InputAction _lookAction;
@@ -12,9 +13,6 @@ namespace ModularFirstPerson
 
         private Vector2 _look;
         private Vector2 _move;
-
-        [SerializeField, Tooltip("The PlayerInput component that has the desired actions.")]
-        private PlayerInput _playerInput = default;
 
         // TODO: In-editor validation of these values and/or some kind of nice action picker UI
         [SerializeField, Tooltip("The name of an action that provides a Vector2 for turning and looking up/down.")]
@@ -29,11 +27,13 @@ namespace ModularFirstPerson
 
         private void OnEnable()
         {
-            _lookAction = _playerInput.actions.FindAction(_lookActionName, throwIfNotFound: true);
+            var playerInput = GetComponent<PlayerInput>();
+
+            _lookAction = playerInput.actions.FindAction(_lookActionName, throwIfNotFound: true);
             _lookAction.performed += OnLookPerformed;
             _lookAction.canceled += OnLookCanceled;
 
-            _moveAction = _playerInput.actions.FindAction(_moveActionName, throwIfNotFound: true);
+            _moveAction = playerInput.actions.FindAction(_moveActionName, throwIfNotFound: true);
             _moveAction.performed += OnMovePerformed;
             _moveAction.canceled += OnMoveCanceled;
         }
@@ -45,14 +45,6 @@ namespace ModularFirstPerson
 
             _moveAction.performed -= OnMovePerformed;
             _moveAction.canceled -= OnMoveCanceled;
-        }
-
-        private void OnValidate()
-        {
-            if (!_playerInput)
-            {
-                _playerInput = GetComponent<PlayerInput>();
-            }
         }
 
         private void OnLookPerformed(InputAction.CallbackContext ctx)

@@ -2,8 +2,14 @@
 
 namespace ModularFirstPerson
 {
+    [RequireComponent(typeof(PlayerInputProvider))]
+    [RequireComponent(typeof(CapsuleBody))]
     public sealed class PlayerController : MonoBehaviour
     {
+        private Transform _transform;
+        private PlayerInputProvider _input;
+        private CapsuleBody _body;
+
         private bool _grounded;
         private RaycastHit _lastGroundHit;
 
@@ -14,12 +20,6 @@ namespace ModularFirstPerson
 
         // Final computed velocity carried between frames for acceleration
         private Vector3 _velocity;
-
-        [SerializeField, Tooltip("The component responsible for providing input to the motor.")]
-        private PlayerInputProvider _input;
-
-        [SerializeField]
-        private CapsuleBody _body;
 
         [SerializeField]
         public float acceleration = 2f;
@@ -32,19 +32,11 @@ namespace ModularFirstPerson
 
         public PlayerSpeed speed = new PlayerSpeed(2f, 1f, 0.95f);
 
-        public Transform cameraForward;
-
-        private void OnValidate()
+        private void OnEnable()
         {
-            if (!_input)
-            {
-                _input = GetComponent<PlayerInputProvider>();
-            }
-
-            if (!_body)
-            {
-                _body = GetComponent<CapsuleBody>();
-            }
+            _transform = transform;
+            _input = GetComponent<PlayerInputProvider>();
+            _body = GetComponent<CapsuleBody>();
         }
 
         private void FixedUpdate()
@@ -58,7 +50,7 @@ namespace ModularFirstPerson
 
         private void ApplyUserInputMovement()
         {
-            var movementRotation = Quaternion.Euler(0, cameraForward.eulerAngles.y, 0);
+            var movementRotation = Quaternion.Euler(0, _transform.eulerAngles.y, 0);
             if (_grounded)
             {
                 movementRotation = Quaternion.FromToRotation(Vector3.up, _lastGroundHit.normal) * movementRotation;

@@ -5,17 +5,21 @@ namespace ModularFirstPerson
 {
     public sealed class PlayerTurn : MonoBehaviour
     {
+        private Transform _transform = default;
+
         [SerializeField, Tooltip("The component that provides user input to process.")]
         private PlayerInputProvider _input = default;
 
-        [SerializeField, Tooltip("The transform that will be turned around the Y axis based on the player input.")]
-        private Transform _targetTransform = default;
+        private void OnEnable()
+        {
+            _transform = transform;
+        }
 
         private void Update()
         {
-            var yaw = _targetTransform.localEulerAngles.y;
+            var yaw = _transform.localEulerAngles.y;
             yaw = Repeat(yaw + _input.lookHorizontal, 360f);
-            _targetTransform.localEulerAngles = new Vector3(0, yaw, 0);
+            _transform.localEulerAngles = new Vector3(0, yaw, 0);
         }
 
         private void OnValidate()
@@ -23,11 +27,6 @@ namespace ModularFirstPerson
             if (_input == null)
             {
                 _input = GetComponent<PlayerInputProvider>();
-            }
-
-            if (!_targetTransform)
-            {
-                _targetTransform = transform;
             }
         }
     }
