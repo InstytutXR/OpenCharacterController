@@ -17,7 +17,6 @@ namespace FirstPersonController
         private Vector2 _look;
         private Vector2 _move;
 
-        // TODO: In-editor validation of these values and/or some kind of nice action picker UI
         [SerializeField, Tooltip("An action that provides a Vector2 for turning and looking up/down.")]
         private PlayerInputActionReference _lookAction;
 
