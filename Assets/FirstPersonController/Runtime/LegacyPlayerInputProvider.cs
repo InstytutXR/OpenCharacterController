@@ -4,7 +4,11 @@ using UnityEngine;
 
 namespace FirstPersonController
 {
-    public sealed class LegacyPlayerInputProvider : PlayerInputProvider
+    public sealed class LegacyPlayerInputProvider
+        : MonoBehaviour
+        , IPlayerTurnInput
+        , IPlayerLookUpDownInput
+        , IPlayerControllerInput
     {
         private float _lookHorizontal;
         private float _lookVertical;
@@ -17,9 +21,9 @@ namespace FirstPersonController
         public string MoveHorizontalAxis = "Horizontal";
         public string MoveVerticalAxis = "Vertical";
 
-        public override float lookHorizontal => _lookHorizontal;
-        public override float lookVertical => _lookVertical;
-        public override Vector2 moveInput => _movementInput;
+        public float lookHorizontal => _lookHorizontal;
+        public float lookVertical => _lookVertical;
+        public Vector2 moveInput => _movementInput;
 
         private void Update()
         {

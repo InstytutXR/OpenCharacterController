@@ -1,13 +1,15 @@
 ﻿#if ENABLE_INPUT_SYSTEM
 
-using System;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace FirstPersonController
 {
-    public sealed class ActionBasedPlayerInputProvider : PlayerInputProvider
+    public sealed class ActionBasedPlayerInputProvider
+        : MonoBehaviour
+        , IPlayerTurnInput
+        , IPlayerLookUpDownInput
+        , IPlayerControllerInput
     {
         private InputAction _lookActionRef;
         private InputAction _moveActionRef;
@@ -22,9 +24,9 @@ namespace FirstPersonController
         [SerializeField, Tooltip("An action that provides a Vector2 for moving.")]
         private PlayerInputActionReference _moveAction;
 
-        public override float lookHorizontal => _look.x;
-        public override float lookVertical => _look.y;
-        public override Vector2 moveInput => _move;
+        public float lookHorizontal => _look.x;
+        public float lookVertical => _look.y;
+        public Vector2 moveInput => _move;
 
         private void OnEnable()
         {

@@ -6,7 +6,7 @@ namespace FirstPersonController
     public sealed class PlayerLookUpDown : MonoBehaviour
     {
         private Transform _transform;
-        private PlayerInputProvider _input;
+        private IPlayerLookUpDownInput _input;
 
         private float _pitch = 0f;
 
@@ -19,7 +19,7 @@ namespace FirstPersonController
         private void OnEnable()
         {
             _transform = transform;
-            _input = GetComponentInParent<PlayerInputProvider>();
+            _input = GetComponentInParent<IPlayerLookUpDownInput>();
         }
 
         private void Update()

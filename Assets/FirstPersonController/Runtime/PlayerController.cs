@@ -2,12 +2,11 @@
 
 namespace FirstPersonController
 {
-    [RequireComponent(typeof(PlayerInputProvider))]
     [RequireComponent(typeof(CapsuleBody))]
     public sealed class PlayerController : MonoBehaviour
     {
         private Transform _transform;
-        private PlayerInputProvider _input;
+        private IPlayerControllerInput _input;
         private CapsuleBody _body;
 
         private bool _grounded;
@@ -35,7 +34,7 @@ namespace FirstPersonController
         private void OnEnable()
         {
             _transform = transform;
-            _input = GetComponent<PlayerInputProvider>();
+            _input = GetComponent<IPlayerControllerInput>();
             _body = GetComponent<CapsuleBody>();
         }
 
