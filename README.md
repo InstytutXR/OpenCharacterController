@@ -1,4 +1,4 @@
-# Modular First Person
+# Modular First Person Controller
 
 My attempt to make a simple, yet flexible, first person controller system for Unity.
 
