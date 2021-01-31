@@ -140,8 +140,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5657410e9bb56ab47a53190d83102b02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lookActionName: Look
-  _moveActionName: Move
+  _lookAction:
+    guidAsString: d0cbb03a-9b84-467b-9c04-abb1f2e82f27
+  _moveAction:
+    guidAsString: 31acc433-3d16-40de-a31a-ec2616cd2efc
 --- !u!114 &6324313413560638111
 MonoBehaviour:
   m_ObjectHideFlags: 0
