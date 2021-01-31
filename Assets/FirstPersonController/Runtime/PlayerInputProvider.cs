@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace ModularFirstPerson
+namespace FirstPersonController
 {
     public abstract class PlayerInputProvider : MonoBehaviour
     {

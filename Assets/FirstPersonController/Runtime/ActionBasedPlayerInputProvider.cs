@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace ModularFirstPerson
+namespace FirstPersonController
 {
     public sealed class ActionBasedPlayerInputProvider : PlayerInputProvider
     {

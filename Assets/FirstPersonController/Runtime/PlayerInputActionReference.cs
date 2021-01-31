@@ -3,7 +3,7 @@
 using System;
 using UnityEngine.InputSystem;
 
-namespace ModularFirstPerson
+namespace FirstPersonController
 {
     /*
      * This is kind of like the UnityEngine.InputSystem.InputActionReference

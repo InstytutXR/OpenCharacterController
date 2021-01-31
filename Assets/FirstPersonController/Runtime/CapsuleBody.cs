@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ModularFirstPerson
+namespace FirstPersonController
 {
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CapsuleCollider))]

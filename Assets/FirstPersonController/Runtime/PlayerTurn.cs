@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using static UnityEngine.Mathf;
 
-namespace ModularFirstPerson
+namespace FirstPersonController
 {
     public sealed class PlayerTurn : MonoBehaviour
     {

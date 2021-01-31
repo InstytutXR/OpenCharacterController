@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace ModularFirstPerson
+namespace FirstPersonController
 {
     // This editor exists solely to provide the frame bounds so that pressing F
     // in the viewport correctly frames the character.

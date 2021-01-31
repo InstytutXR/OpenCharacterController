@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace ModularFirstPerson
+namespace FirstPersonController
 {
     public sealed class LegacyPlayerInputProvider : PlayerInputProvider
     {

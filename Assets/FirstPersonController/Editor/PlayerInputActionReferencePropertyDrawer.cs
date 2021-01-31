@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 using System.Linq;
 using System;
 
-namespace ModularFirstPerson
+namespace FirstPersonController
 {
     [CustomPropertyDrawer(typeof(PlayerInputActionReference))]
     public class PlayerInputActionReferencePropertyDrawer : PropertyDrawer
