@@ -50,15 +50,13 @@ namespace ModularFirstPerson
         private void FixedUpdate()
         {
             CheckForGround();
-
-            var moveInput = _input.moveInput;
-            ApplyUserInputMovement(in moveInput);
+            ApplyUserInputMovement();
 
             _velocity = _controlVelocity + new Vector3(0, _verticalVelocity, 0);
             _body.MoveWithVelocity(ref _velocity);
         }
 
-        private void ApplyUserInputMovement(in Vector2 moveInput)
+        private void ApplyUserInputMovement()
         {
             var movementRotation = Quaternion.Euler(0, cameraForward.eulerAngles.y, 0);
             if (_grounded)
@@ -66,6 +64,7 @@ namespace ModularFirstPerson
                 movementRotation = Quaternion.FromToRotation(Vector3.up, _lastGroundHit.normal) * movementRotation;
             }
 
+            var moveInput = _input.moveInput;
             var moveVelocity = movementRotation * new Vector3(moveInput.x, 0, moveInput.y);
             var targetSpeed = Mathf.Lerp(_controlVelocity.magnitude, speed.TargetSpeed(moveInput), acceleration * Time.deltaTime);
             moveVelocity *= targetSpeed;
