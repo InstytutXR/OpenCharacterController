@@ -126,16 +126,17 @@ namespace FirstPersonController
             // By default the SweepTest lets the player "sink" into walls by
             // running straight into them. The addition of this thickness
             // approach gives us more solid collisions.
-            _body.position -= movement.normalized * skinThickness;
-            movement += movement.normalized * skinThickness;
+            var moveDirection = movement.normalized;
+            _body.position -= moveDirection * skinThickness;
+            movement += moveDirection * skinThickness;
 
-            var didCollide = _body.SweepTest(movement.normalized, out var hit, movement.magnitude);
+            var didCollide = _body.SweepTest(moveDirection, out var hit, movement.magnitude);
 
             if (didCollide)
             {
                 // TODO: OnCollision event
 
-                var allowedMovement = movement.normalized * hit.distance;
+                var allowedMovement = moveDirection * hit.distance;
                 Translate(allowedMovement);
                 movement -= allowedMovement;
 
