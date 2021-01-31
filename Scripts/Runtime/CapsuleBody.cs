@@ -109,7 +109,7 @@ namespace ModularFirstPerson
                 iteration++
             )
             {
-                var lateral = movement.WithoutY();
+                var lateral = new Vector3(movement.x, 0, movement.z);
                 var vertical = new Vector3(0, movement.y, 0);
 
                 var remainingLateral = Sweep(lateral);
