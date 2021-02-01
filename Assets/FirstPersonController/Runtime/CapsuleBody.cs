@@ -110,33 +110,31 @@ namespace FirstPersonController
             )
             {
                 var lateral = new Vector3(movement.x, 0, movement.z);
+                Sweep(ref lateral);
+
                 var vertical = new Vector3(0, movement.y, 0);
+                Sweep(ref vertical);
 
-                var remainingLateral = Sweep(lateral);
-                var remainingVertical = Sweep(vertical);
-
-                movement = remainingLateral + remainingVertical;
+                movement = lateral + vertical;
             }
 
             velocity = (_body.position - originalPosition) / Time.deltaTime;
         }
 
-        private Vector3 Sweep(Vector3 movement)
+        private void Sweep(ref Vector3 movement)
         {
-            // By default the SweepTest lets the player "sink" into walls by
-            // running straight into them. The addition of this thickness
-            // approach gives us more solid collisions.
             var moveDirection = movement.normalized;
-            _body.position -= moveDirection * skinThickness;
-            movement += moveDirection * skinThickness;
-
-            var didCollide = _body.SweepTest(moveDirection, out var hit, movement.magnitude);
+            var didCollide = _body.SweepTest(
+                moveDirection, 
+                out var hit, 
+                movement.magnitude + skinThickness
+            );
 
             if (didCollide)
             {
                 // TODO: OnCollision event
 
-                var allowedMovement = moveDirection * hit.distance;
+                var allowedMovement = moveDirection * (hit.distance - skinThickness);
                 Translate(allowedMovement);
                 movement -= allowedMovement;
 
@@ -151,8 +149,6 @@ namespace FirstPersonController
                 Translate(movement);
                 movement = Vector3.zero;
             }
-
-            return movement;
         }
 
         public void Translate(Vector3 movement)
