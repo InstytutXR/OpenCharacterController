@@ -156,7 +156,11 @@ namespace FirstPersonController
             _body.MovePosition(_body.position + movement);
         }
 
-        public bool CheckForGround(bool stickToGround, out RaycastHit hit, out float verticalMovementApplied)
+        public bool CheckForGround(
+            bool stickToGround, 
+            out RaycastHit hit, 
+            out float verticalMovementApplied
+         )
         {
             const float paddingForFloatingPointErrors = 0.001f;
             var maximumDistance = _collider.center.y + paddingForFloatingPointErrors;
@@ -166,8 +170,12 @@ namespace FirstPersonController
                 maximumDistance += _stepHeight;
             }
 
-            var hitGround = Physics.Raycast(
-                _body.position + _collider.center,
+            maximumDistance -= _collider.radius;
+
+            var origin = _body.position + _collider.center;
+            var hitGround = Physics.SphereCast(
+                origin,
+                _collider.radius,
                 Vector3.down,
                 out hit,
                 maximumDistance,
@@ -177,7 +185,29 @@ namespace FirstPersonController
 
             if (hitGround)
             {
-                verticalMovementApplied = _collider.center.y - hit.distance;
+                // We're using a sphere but really want it to act like a cylinder. This bit of 
+                // math tries to add to the distance to treat the curve of the sphere as if it 
+                // was a cylinder.
+                var cylinderCorrection = hit.point.y - (origin.y - hit.distance - _collider.radius);
+                verticalMovementApplied = 
+                    _collider.center.y - 
+                    hit.distance -
+                    _collider.radius + 
+                    cylinderCorrection;
+
+                // But we're not done yet! We want to know the normal of the
+                // surface right under us for the controller; not the normal
+                // of whatever point we hit. So for that we do a simple raycast
+                // straight down to the ground before translating us.
+                Physics.Raycast(
+                    origin,
+                    Vector3.down,
+                    out hit,
+                    maximumDistance,
+                    groundMask,
+                    QueryTriggerInteraction.Ignore
+                );
+
                 Translate(Vector3.up * verticalMovementApplied);
             }
             else
