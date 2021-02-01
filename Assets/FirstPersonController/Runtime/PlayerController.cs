@@ -84,7 +84,11 @@ namespace FirstPersonController
 
         private void CheckForGround()
         {
-            var hitGround = _body.CheckForGround(_grounded, out _lastGroundHit, out var verticalMovementApplied);
+            var hitGround = _body.CheckForGround(
+                _grounded, 
+                out _lastGroundHit, 
+                out var verticalMovementApplied
+            );
 
             // Only grounded if the body detected ground AND we're not moving upwards
             var groundedNow = hitGround && _verticalVelocity <= 0;
