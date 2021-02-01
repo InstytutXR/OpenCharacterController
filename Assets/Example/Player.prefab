@@ -144,6 +144,8 @@ MonoBehaviour:
     guidAsString: d0cbb03a-9b84-467b-9c04-abb1f2e82f27
   _moveAction:
     guidAsString: 31acc433-3d16-40de-a31a-ec2616cd2efc
+  _jumpAction:
+    guidAsString: 4d6f8e92-6f2b-4e6c-82b8-0fa70ee99e4c
 --- !u!114 &6324313413560638111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,6 +161,7 @@ MonoBehaviour:
   acceleration: 2
   airDrag: 0.2
   airControl: 20
+  jumpHeight: 1.5
   speed:
     _forwardSpeed: 4
     _sidewaysModifier: 0.85

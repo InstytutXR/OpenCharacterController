@@ -29,6 +29,8 @@ namespace FirstPersonController
         [SerializeField]
         public float airControl = 20f;
 
+        public float jumpHeight = 1.5f;
+
         public PlayerSpeed speed = new PlayerSpeed(2f, 1f, 0.95f);
 
         private void OnEnable()
@@ -42,6 +44,13 @@ namespace FirstPersonController
         {
             CheckForGround();
             _verticalVelocity += Physics.gravity.y * Time.deltaTime;
+
+            if (_grounded && _input.jump)
+            {
+                _verticalVelocity = Mathf.Sqrt(2f * jumpHeight * -Physics.gravity.y);
+                _grounded = false;
+            }
+
             ApplyUserInputMovement();
             _velocity = _controlVelocity + new Vector3(0, _verticalVelocity, 0);
             _body.MoveWithVelocity(ref _velocity);
