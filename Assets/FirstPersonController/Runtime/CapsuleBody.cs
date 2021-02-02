@@ -10,6 +10,7 @@ namespace FirstPersonController
 
         private Rigidbody _body;
         private CapsuleCollider _collider;
+        private RaycastHit _lastGroundHit;
 
         [SerializeField, Tooltip("The total height of the character. The capsule height is this value minus the step height.")]
         private float _height = 1.7f;
@@ -195,18 +196,26 @@ namespace FirstPersonController
                     _collider.radius + 
                     cylinderCorrection;
 
-                // But we're not done yet! We want to know the normal of the
-                // surface right under us for the controller; not the normal
-                // of whatever point we hit. So for that we do a simple raycast
-                // straight down to the ground before translating us.
-                Physics.Raycast(
+                // Raycasts are interesting here. We want to provide a RaycastHit to the caller
+                // so they have the normal and other information to work with. However because
+                // we do a SphereCast above we might be hitting an edge of a platform. So what
+                // we do here is do a single point raycast to gauge if we're over a ledge or
+                // not.
+                if (Physics.Raycast(
                     origin,
                     Vector3.down,
                     out hit,
                     maximumDistance,
                     groundMask,
                     QueryTriggerInteraction.Ignore
-                );
+                ))
+                {
+                    _lastGroundHit = hit;
+                }
+                else
+                {
+                    hit = _lastGroundHit;
+                }
 
                 Translate(Vector3.up * verticalMovementApplied);
             }
