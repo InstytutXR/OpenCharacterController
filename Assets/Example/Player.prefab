@@ -191,7 +191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _height: 1.7
-  _radius: 0.35
+  _radius: 0.2
   _stepHeight: 0.35
   groundMask:
     serializedVersion: 2
@@ -223,7 +223,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.35
+  m_Radius: 0.2
   m_Height: 1.35
   m_Direction: 1
   m_Center: {x: 0, y: 1.025, z: 0}
