@@ -2,6 +2,9 @@
 
 namespace FirstPersonController
 {
+    // NOTE: This code is all very rough and is just used to get
+    // the basic features in place. I intend to do a lot of cleanup
+    // in here, hence the very messy naming and organization.
     [RequireComponent(typeof(CapsuleBody))]
     public sealed class PlayerController : MonoBehaviour
     {
@@ -45,7 +48,8 @@ namespace FirstPersonController
 
         public float jumpHeight = 1.5f;
 
-        public PlayerSpeed speed = new PlayerSpeed(2f, 1f, 0.95f);
+        public PlayerSpeed walkSpeed = new PlayerSpeed(2f, 1f, 0.95f);
+        public PlayerSpeed runSpeed = new PlayerSpeed(4.5f, 0.9f, 0.6f);
 
         private void Start()
         {
@@ -70,7 +74,8 @@ namespace FirstPersonController
                 _grounded = false;
             }
 
-            ApplyUserInputMovement();
+            ApplyUserInputMovement(); 
+
             _velocity = _controlVelocity + new Vector3(0, _verticalVelocity, 0);
             _body.MoveWithVelocity(ref _velocity);
 
@@ -82,12 +87,21 @@ namespace FirstPersonController
             var movementRotation = Quaternion.Euler(0, _transform.eulerAngles.y, 0);
             if (_grounded)
             {
-                movementRotation = Quaternion.FromToRotation(Vector3.up, _lastGroundHit.normal) * movementRotation;
+                var groundOrientation = Quaternion.FromToRotation(
+                    Vector3.up,
+                    _lastGroundHit.normal
+                );
+                movementRotation = groundOrientation * movementRotation;
             }
 
             var moveInput = _input.moveInput;
             var moveVelocity = movementRotation * new Vector3(moveInput.x, 0, moveInput.y);
-            var targetSpeed = Mathf.Lerp(_controlVelocity.magnitude, speed.TargetSpeed(moveInput), acceleration * Time.deltaTime);
+            var speed = _input.run ? runSpeed : walkSpeed;
+            var targetSpeed = Mathf.Lerp(
+                _controlVelocity.magnitude, 
+                speed.TargetSpeed(moveInput), 
+                acceleration * Time.deltaTime
+            );
             moveVelocity *= targetSpeed;
 
             if (_grounded)
@@ -100,7 +114,11 @@ namespace FirstPersonController
                 if (moveVelocity.sqrMagnitude > 0)
                 {
                     moveVelocity = Vector3.ProjectOnPlane(moveVelocity, Vector3.up);
-                    _controlVelocity = Vector3.Lerp(_controlVelocity, moveVelocity, airControl * Time.deltaTime);
+                    _controlVelocity = Vector3.Lerp(
+                        _controlVelocity, 
+                        moveVelocity, 
+                        airControl * Time.deltaTime
+                    );
                 }
 
                 ApplyAirDrag();

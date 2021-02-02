@@ -146,6 +146,8 @@ MonoBehaviour:
     guidAsString: 31acc433-3d16-40de-a31a-ec2616cd2efc
   _jumpAction:
     guidAsString: 4d6f8e92-6f2b-4e6c-82b8-0fa70ee99e4c
+  _runAction:
+    guidAsString: 9d2ef621-59bd-4fe9-ba65-78e5f42f4e56
 --- !u!114 &6324313413560638111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,10 +168,14 @@ MonoBehaviour:
   _eyeHeightTransform: {fileID: 1730139548453687447}
   _cameraCollisionRadius: 0.2
   jumpHeight: 1.5
-  speed:
-    _forwardSpeed: 4
-    _sidewaysModifier: 0.85
-    _backwardModifier: 0.5
+  walkSpeed:
+    _forwardSpeed: 2
+    _sidewaysModifier: 1
+    _backwardModifier: 0.95
+  runSpeed:
+    _forwardSpeed: 6
+    _sidewaysModifier: 0.9
+    _backwardModifier: 0.6
 --- !u!114 &3839245503589088757
 MonoBehaviour:
   m_ObjectHideFlags: 0

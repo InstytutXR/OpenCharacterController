@@ -14,10 +14,12 @@ namespace FirstPersonController
         private InputAction _lookActionRef;
         private InputAction _moveActionRef;
         private InputAction _jumpActionRef;
+        private InputAction _runActionRef;
 
         private Vector2 _look;
         private Vector2 _move;
         private bool _jump;
+        private bool _run;
 
         [SerializeField, Tooltip("An action that provides a Vector2 for turning and looking up/down.")]
         private PlayerInputActionReference _lookAction;
@@ -28,16 +30,21 @@ namespace FirstPersonController
         [SerializeField, Tooltip("A button action for jumping.")]
         private PlayerInputActionReference _jumpAction;
 
+        [SerializeField, Tooltip("A button action for running.")]
+        private PlayerInputActionReference _runAction;
+
         public float lookHorizontal => _look.x;
         public float lookVertical => _look.y;
         public Vector2 moveInput => _move;
         public bool jump => _jump;
+        public bool run => _run;
 
         private void OnEnable()
         {
             _look = Vector2.zero;
             _move = Vector2.zero;
             _jump = false;
+            _run = false;
 
             var playerInput = GetComponentInParent<PlayerInput>();
 
@@ -57,6 +64,13 @@ namespace FirstPersonController
             {
                 _jumpActionRef.performed += OnJumpPerformed;
                 _jumpActionRef.canceled += OnJumpCanceled;
+            }
+
+
+            if (_runAction.TryGetInputAction(playerInput, out _runActionRef))
+            {
+                _runActionRef.performed += OnRunPerformed;
+                _runActionRef.canceled += OnRunCanceled;
             }
         }
 
@@ -109,6 +123,16 @@ namespace FirstPersonController
         private void OnJumpCanceled(InputAction.CallbackContext ctx)
         {
             _jump = false;
+        }
+
+        private void OnRunPerformed(InputAction.CallbackContext ctx)
+        {
+            _run = true;
+        }
+
+        private void OnRunCanceled(InputAction.CallbackContext ctx)
+        {
+            _run = false;
         }
     }
 }
