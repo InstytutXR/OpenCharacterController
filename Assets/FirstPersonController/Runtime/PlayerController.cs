@@ -48,7 +48,7 @@ namespace FirstPersonController
         private float _defaultColliderHeight = 1.7f;
 
         [SerializeField]
-        private float _defaultEyeHeight = 1.55f;
+        private float _defaultEyeHeight = 1.6f;
 
         [SerializeField]
         private float _crouchColliderHeight = 0.9f;
@@ -80,6 +80,16 @@ namespace FirstPersonController
         {
             _body.height = colliderHeight;
             _targetEyeHeight = eyeHeight;
+        }
+
+        public bool CanStandUp()
+        {
+            return !Physics.Raycast(
+                _body.position,
+                Vector3.up,
+                _defaultColliderHeight,
+                ~(1 << gameObject.layer)
+            );
         }
 
         private void Start()
@@ -177,7 +187,7 @@ namespace FirstPersonController
                     }
                     break;
                 case State.Crouching:
-                    if (!_input.crouch)
+                    if (!_input.crouch && CanStandUp())
                     {
                         if (_input.run)
                         {
@@ -279,11 +289,6 @@ namespace FirstPersonController
 
         private void AdjustEyeHeight()
         {
-            // NOTE: At this point a lot of this doesn't make sense for the
-            // current player because we can't crouch. Once we add that in
-            // this'll all make more sense.
-
-
             var eyeLocalPos = _eyeHeightTransform.localPosition;
             var oldHeight = eyeLocalPos.y;
 
