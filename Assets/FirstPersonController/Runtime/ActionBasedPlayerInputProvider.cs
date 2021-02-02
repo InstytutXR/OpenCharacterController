@@ -15,11 +15,13 @@ namespace FirstPersonController
         private InputAction _moveActionRef;
         private InputAction _jumpActionRef;
         private InputAction _runActionRef;
+        private InputAction _crouchActionRef;
 
         private Vector2 _look;
         private Vector2 _move;
         private bool _jump;
         private bool _run;
+        private bool _crouch;
 
         [SerializeField, Tooltip("An action that provides a Vector2 for turning and looking up/down.")]
         private PlayerInputActionReference _lookAction;
@@ -33,11 +35,15 @@ namespace FirstPersonController
         [SerializeField, Tooltip("A button action for running.")]
         private PlayerInputActionReference _runAction;
 
+        [SerializeField, Tooltip("A button action for crouching.")]
+        private PlayerInputActionReference _crouchAction;
+
         public float lookHorizontal => _look.x;
         public float lookVertical => _look.y;
         public Vector2 moveInput => _move;
         public bool jump => _jump;
         public bool run => _run;
+        public bool crouch => _crouch;
 
         private void OnEnable()
         {
@@ -45,6 +51,7 @@ namespace FirstPersonController
             _move = Vector2.zero;
             _jump = false;
             _run = false;
+            _crouch = false;
 
             var playerInput = GetComponentInParent<PlayerInput>();
 
@@ -66,11 +73,16 @@ namespace FirstPersonController
                 _jumpActionRef.canceled += OnJumpCanceled;
             }
 
-
             if (_runAction.TryGetInputAction(playerInput, out _runActionRef))
             {
                 _runActionRef.performed += OnRunPerformed;
                 _runActionRef.canceled += OnRunCanceled;
+            }
+
+            if (_crouchAction.TryGetInputAction(playerInput, out _crouchActionRef))
+            {
+                _crouchActionRef.performed += OnCrouchPerformed;
+                _crouchActionRef.canceled += OnCrouchCanceled;
             }
         }
 
@@ -133,6 +145,16 @@ namespace FirstPersonController
         private void OnRunCanceled(InputAction.CallbackContext ctx)
         {
             _run = false;
+        }
+
+        private void OnCrouchPerformed(InputAction.CallbackContext ctx)
+        {
+            _crouch = true;
+        }
+
+        private void OnCrouchCanceled(InputAction.CallbackContext ctx)
+        {
+            _crouch = false;
         }
     }
 }

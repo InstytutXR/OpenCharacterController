@@ -15,6 +15,7 @@ namespace FirstPersonController
         private Vector2 _movementInput;
         private bool _jump;
         private bool _run;
+        private bool _crouch;
 
         public string LookHorizontalAxis = "Mouse X";
         public string LookVerticalAxis = "Mouse Y";
@@ -24,13 +25,15 @@ namespace FirstPersonController
         public string MoveVerticalAxis = "Vertical";
 
         public string JumpButton = "Jump";
-        public string RunButton = "Jump";
+        public string RunButton = "Run";
+        public string CrouchButton = "Crouch";
 
         public float lookHorizontal => _lookHorizontal;
         public float lookVertical => _lookVertical;
         public Vector2 moveInput => _movementInput;
         public bool jump => _jump;
         public bool run => _run;
+        public bool crouch => _crouch;
 
         private void Update()
         {
@@ -49,6 +52,7 @@ namespace FirstPersonController
 
             _jump = Input.GetButton(JumpButton);
             _run = Input.GetButton(RunButton);
+            _crouch = Input.GetButton(CrouchButton);
         }
     }
 }

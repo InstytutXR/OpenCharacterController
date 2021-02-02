@@ -8,9 +8,19 @@ namespace FirstPersonController
     [RequireComponent(typeof(CapsuleBody))]
     public sealed class PlayerController : MonoBehaviour
     {
+        private enum State
+        {
+            Walking,
+            Running,
+            Crouching,
+        }
+
         private Transform _transform;
         private IPlayerControllerInput _input;
         private CapsuleBody _body;
+
+        private State _state;
+        private State _nextState;
 
         private bool _grounded;
         private RaycastHit _lastGroundHit;
@@ -35,7 +45,16 @@ namespace FirstPersonController
         public float airControl = 20f;
 
         [SerializeField]
-        private float _defaultEyeHeight = 1.4f;
+        private float _defaultColliderHeight = 1.7f;
+
+        [SerializeField]
+        private float _defaultEyeHeight = 1.55f;
+
+        [SerializeField]
+        private float _crouchColliderHeight = 0.9f;
+
+        [SerializeField]
+        private float _crouchEyeHeight = 0.8f;
 
         [SerializeField]
         private float _eyeHeightAnimationSpeed = 10f;
@@ -50,10 +69,25 @@ namespace FirstPersonController
 
         public PlayerSpeed walkSpeed = new PlayerSpeed(2f, 1f, 0.95f);
         public PlayerSpeed runSpeed = new PlayerSpeed(4.5f, 0.9f, 0.6f);
+        public PlayerSpeed crouchSpeed = new PlayerSpeed(0.8f, 1f, 1f);
+
+        public void ResetHeight()
+        {
+            ChangeHeight(_defaultColliderHeight, _defaultEyeHeight);
+        }
+
+        public void ChangeHeight(float colliderHeight, float eyeHeight)
+        {
+            _body.height = colliderHeight;
+            _targetEyeHeight = eyeHeight;
+        }
 
         private void Start()
         {
-            _targetEyeHeight = _defaultEyeHeight;
+            ResetHeight();
+
+            _state = State.Walking;
+            _nextState = State.Walking;
         }
 
         private void OnEnable()
@@ -63,8 +97,32 @@ namespace FirstPersonController
             _body = GetComponent<CapsuleBody>();
         }
 
+        private void ChangeState(State nextState)
+        {
+            _nextState = nextState;
+        }
+
+        private void ApplyStateChange()
+        {
+            if (_nextState != _state)
+            {
+                _state = _nextState;
+
+                switch (_state)
+                {
+                    case State.Crouching:
+                        ChangeHeight(_crouchColliderHeight, _crouchEyeHeight);
+                        break;
+                    default:
+                        ResetHeight();
+                        break;
+                }
+            }
+        }
+
         private void FixedUpdate()
         {
+            ApplyStateChange();
             CheckForGround();
             _verticalVelocity += Physics.gravity.y * Time.deltaTime;
 
@@ -95,8 +153,57 @@ namespace FirstPersonController
             }
 
             var moveInput = _input.moveInput;
+
+            switch (_state)
+            {
+                case State.Walking:
+                    if (_input.run)
+                    {
+                        ChangeState(State.Running);
+                    }
+                    else if (_input.crouch)
+                    {
+                        ChangeState(State.Crouching);
+                    }
+                    break;
+                case State.Running:
+                    if (_input.crouch)
+                    {
+                        ChangeState(State.Crouching);
+                    }
+                    else if (!_input.run)
+                    {
+                        ChangeState(State.Walking);
+                    }
+                    break;
+                case State.Crouching:
+                    if (!_input.crouch)
+                    {
+                        if (_input.run)
+                        {
+                            ChangeState(State.Running);
+                        }
+                        else
+                        {
+                            ChangeState(State.Walking);
+                        }
+                    }
+                    break;
+            }
+
             var moveVelocity = movementRotation * new Vector3(moveInput.x, 0, moveInput.y);
-            var speed = _input.run ? runSpeed : walkSpeed;
+
+            PlayerSpeed speed = walkSpeed;
+            switch (_state)
+            {
+                case State.Running:
+                    speed = runSpeed;
+                    break;
+                case State.Crouching:
+                    speed = crouchSpeed;
+                    break;
+            }
+
             var targetSpeed = Mathf.Lerp(
                 _controlVelocity.magnitude, 
                 speed.TargetSpeed(moveInput), 
