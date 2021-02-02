@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 6453351816349043348}
   - component: {fileID: 2697355805672739429}
   - component: {fileID: 4428562641524263771}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,6 +161,10 @@ MonoBehaviour:
   acceleration: 2
   airDrag: 0.2
   airControl: 20
+  _defaultEyeHeight: 1.4
+  _eyeHeightAnimationSpeed: 15
+  _eyeHeightTransform: {fileID: 1730139548453687447}
+  _cameraCollisionRadius: 0.2
   jumpHeight: 1.5
   speed:
     _forwardSpeed: 4

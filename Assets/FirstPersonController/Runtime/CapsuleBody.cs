@@ -27,6 +27,8 @@ namespace FirstPersonController
         [Tooltip("An extra value used when sweeping the capsule through the world to improve collision detection.")]
         public float skinThickness = 0.1f;
 
+        public Vector3 position => _body.position;
+
         public Bounds bounds =>
             new Bounds(
                 _body.position + new Vector3(0, _height / 2f, 0),

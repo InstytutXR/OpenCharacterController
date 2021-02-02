@@ -20,6 +20,8 @@ namespace FirstPersonController
         // Final computed velocity carried between frames for acceleration
         private Vector3 _velocity;
 
+        private float _targetEyeHeight;
+
         [SerializeField]
         public float acceleration = 2f;
 
@@ -29,9 +31,26 @@ namespace FirstPersonController
         [SerializeField]
         public float airControl = 20f;
 
+        [SerializeField]
+        private float _defaultEyeHeight = 1.4f;
+
+        [SerializeField]
+        private float _eyeHeightAnimationSpeed = 10f;
+
+        [SerializeField]
+        private Transform _eyeHeightTransform = default;
+
+        [SerializeField]
+        private float _cameraCollisionRadius = 0.2f;
+
         public float jumpHeight = 1.5f;
 
         public PlayerSpeed speed = new PlayerSpeed(2f, 1f, 0.95f);
+
+        private void Start()
+        {
+            _targetEyeHeight = _defaultEyeHeight;
+        }
 
         private void OnEnable()
         {
@@ -54,6 +73,8 @@ namespace FirstPersonController
             ApplyUserInputMovement();
             _velocity = _controlVelocity + new Vector3(0, _verticalVelocity, 0);
             _body.MoveWithVelocity(ref _velocity);
+
+            AdjustEyeHeight();
         }
 
         private void ApplyUserInputMovement()
@@ -94,10 +115,21 @@ namespace FirstPersonController
         private void CheckForGround()
         {
             var hitGround = _body.CheckForGround(
-                _grounded, 
-                out _lastGroundHit, 
+                _grounded,
+                out _lastGroundHit,
                 out var verticalMovementApplied
             );
+
+            // Whenever we hit ground we adjust our eye local coordinate space
+            // in the opposite direction of the ground code so that our eyes
+            // stay at the same world position and then interpolate where they
+            // should be in AdjustEyeHeight later on.
+            if (hitGround)
+            {
+                var eyeLocalPos = _eyeHeightTransform.localPosition;
+                eyeLocalPos.y -= verticalMovementApplied;
+                _eyeHeightTransform.localPosition = eyeLocalPos;
+            }
 
             // Only grounded if the body detected ground AND we're not moving upwards
             var groundedNow = hitGround && _verticalVelocity <= 0;
@@ -120,5 +152,60 @@ namespace FirstPersonController
             }
         }
 
+        private void AdjustEyeHeight()
+        {
+            // NOTE: At this point a lot of this doesn't make sense for the
+            // current player because we can't crouch. Once we add that in
+            // this'll all make more sense.
+
+
+            var eyeLocalPos = _eyeHeightTransform.localPosition;
+            var oldHeight = eyeLocalPos.y;
+
+            // If we want to raise the eyes we check to see if there's something
+            // above us. If we hit something, we clamp our eye position. Once
+            // we're out from under whatever it is then we will fall through and
+            // animate standing up.
+            bool didCollide = Physics.SphereCast(
+                new Ray(_body.position, Vector3.up),
+                _cameraCollisionRadius,
+                out var hit,
+                _targetEyeHeight,
+                ~(1 << gameObject.layer)
+            );
+
+            if (didCollide && oldHeight > hit.distance)
+            {
+                eyeLocalPos.y = hit.distance;
+            }
+            else
+            {
+                var remainingDistance = Mathf.Abs(oldHeight - _targetEyeHeight);
+                if (remainingDistance < 0.01f)
+                {
+                    eyeLocalPos.y = _targetEyeHeight;
+                }
+                else
+                {
+                    // There's probably a better animation plan here than simple
+                    // Lerp but for now it's reasonable.
+                    eyeLocalPos.y = Mathf.Lerp(
+                        oldHeight,
+                        _targetEyeHeight,
+                        _eyeHeightAnimationSpeed * Time.deltaTime
+                    );
+                }
+            }
+
+            _eyeHeightTransform.localPosition = eyeLocalPos;
+
+            // If we're in the air we adjust the body relative to the eye height
+            // to simulate raising the legs up. Otherwise crouching/uncrouching
+            // midair feels super awkward.
+            if (!_grounded)
+            {
+                _body.Translate(new Vector3(0, oldHeight - eyeLocalPos.y, 0));
+            }
+        }
     }
 }
