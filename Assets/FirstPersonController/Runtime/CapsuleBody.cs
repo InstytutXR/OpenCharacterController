@@ -25,7 +25,7 @@ namespace FirstPersonController
         public LayerMask groundMask = 1; // "Default" layer by default
 
         [Tooltip("An extra value used when sweeping the capsule through the world to improve collision detection.")]
-        public float skinThickness = 0.1f;
+        public float skinThickness = 0.05f;
 
         public Vector3 position => _body.position;
 
@@ -127,17 +127,25 @@ namespace FirstPersonController
         private void Sweep(ref Vector3 movement)
         {
             var moveDirection = movement.normalized;
+
+            // Shift the body back just slightly before sweeping forward. This
+            // prevents us from slipping into geometry when our collision geometry
+            // is exactly planar with an object.
+            var skinMovement = moveDirection * skinThickness;
+            _body.position -= skinMovement;
+            movement += skinMovement;
+
             var didCollide = _body.SweepTest(
                 moveDirection, 
                 out var hit, 
-                movement.magnitude + skinThickness
+                movement.magnitude
             );
 
             if (didCollide)
             {
                 // TODO: OnCollision event
 
-                var allowedMovement = moveDirection * (hit.distance - skinThickness);
+                var allowedMovement = moveDirection * hit.distance;
                 Translate(allowedMovement);
                 movement -= allowedMovement;
 

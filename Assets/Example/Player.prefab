@@ -215,7 +215,7 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 1
-  skinThickness: 0.1
+  skinThickness: 0.05
 --- !u!54 &2697355805672739429
 Rigidbody:
   m_ObjectHideFlags: 0
