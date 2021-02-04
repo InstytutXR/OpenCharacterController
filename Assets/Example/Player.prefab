@@ -73,8 +73,6 @@ GameObject:
   - component: {fileID: 6324313413560638111}
   - component: {fileID: 3839245503589088757}
   - component: {fileID: 6453351816349043348}
-  - component: {fileID: 2697355805672739429}
-  - component: {fileID: 4428562641524263771}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -212,40 +210,10 @@ MonoBehaviour:
   _height: 1.7
   _radius: 0.22
   _stepHeight: 0.35
-  groundMask:
+  _skinThickness: 0.05
+  _groundMask:
     serializedVersion: 2
     m_Bits: 1
-  skinThickness: 0.05
---- !u!54 &2697355805672739429
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9064350301729783158}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 1
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!136 &4428562641524263771
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9064350301729783158}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.22
-  m_Height: 1.35
-  m_Direction: 1
-  m_Center: {x: 0, y: 1.025, z: 0}
 --- !u!1 &9064350302692018732
 GameObject:
   m_ObjectHideFlags: 0

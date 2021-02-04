@@ -1,9 +1,11 @@
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace FirstPersonController
 {
-    [RequireComponent(typeof(Rigidbody))]
-    [RequireComponent(typeof(CapsuleCollider))]
     public sealed class CapsuleBody : MonoBehaviour
     {
         private readonly Collider[] _overlapColliders = new Collider[16];
@@ -21,19 +23,28 @@ namespace FirstPersonController
         [SerializeField, Tooltip("The amount the character can step up or down while retaining a grounded state.")]
         private float _stepHeight = 0.35f;
 
-        [Tooltip("Mask of all layers to use when raycasting for the ground.")]
-        public LayerMask groundMask = 1; // "Default" layer by default
+        [SerializeField, Tooltip("An extra value used when sweeping the capsule through the world to improve collision detection.")]
+        private float _skinThickness = 0.05f;
 
-        [Tooltip("An extra value used when sweeping the capsule through the world to improve collision detection.")]
-        public float skinThickness = 0.05f;
+        [SerializeField, Tooltip("Mask of all layers to use when raycasting for the ground.")]
+        private LayerMask _groundMask = 1; // "Default" layer by default
 
         public Vector3 position => _body.position;
 
-        public Bounds bounds =>
-            new Bounds(
-                position + new Vector3(0, _height / 2f, 0),
-                new Vector3(_collider.radius * 2f, _height, _collider.radius * 2f)
-            );
+        public Bounds bounds
+        {
+            get
+            {
+                // In order to use this in the editor when hitting F to frame
+                // the body, we can't utilize the Rigidbody or CapsuleCollider
+                // as those are created only when the game starts.
+                var diameter = Mathf.Min(_radius, _height - _stepHeight / 2f) * 2f;
+                return new Bounds(
+                    transform.position + new Vector3(0, _height / 2f, 0),
+                    new Vector3(diameter, _height, diameter)
+                );
+            }
+        }
 
         public float height
         {
@@ -80,7 +91,16 @@ namespace FirstPersonController
 
         private void Start()
         {
-            ResizeCollider();
+            CreateRigidbody();
+            CreateCollider();
+        }
+
+        private void CreateRigidbody()
+        {
+            _body = gameObject.AddComponent<Rigidbody>();
+#if UNITY_EDITOR
+            _body.hideFlags = HideFlags.HideInInspector;
+#endif
 
             // Must be dynamic for collision checks to work
             _body.isKinematic = false;
@@ -94,12 +114,18 @@ namespace FirstPersonController
             // We're doing all collision checks ourselves so we don't want the
             // physics engine doing any collision detection/response.
             _body.detectCollisions = false;
+
+            // Interpolate the body for smoother motion
+            _body.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
-        private void OnValidate()
+        private void CreateCollider()
         {
-            _body = GetComponent<Rigidbody>();
-            _collider = GetComponent<CapsuleCollider>();
+            _collider = gameObject.AddComponent<CapsuleCollider>();
+#if UNITY_EDITOR
+            _collider.hideFlags = HideFlags.HideInInspector;
+#endif
+
             ResizeCollider();
         }
 
@@ -133,13 +159,13 @@ namespace FirstPersonController
             // Shift the body back just slightly before sweeping forward. This
             // prevents us from slipping into geometry when our collision
             // geometry is exactly planar with an object.
-            var skinMovement = moveDirection * skinThickness;
+            var skinMovement = moveDirection * _skinThickness;
             _body.position -= skinMovement;
             movement += skinMovement;
 
             var didCollide = _body.SweepTest(
-                moveDirection, 
-                out var hit, 
+                moveDirection,
+                out var hit,
                 movement.magnitude
             );
 
@@ -170,8 +196,8 @@ namespace FirstPersonController
         }
 
         public bool CheckForGround(
-            bool stickToGround, 
-            out RaycastHit hit, 
+            bool stickToGround,
+            out RaycastHit hit,
             out float verticalMovementApplied
          )
         {
@@ -192,7 +218,7 @@ namespace FirstPersonController
                 Vector3.down,
                 out hit,
                 maximumDistance,
-                groundMask,
+                _groundMask,
                 QueryTriggerInteraction.Ignore
             );
 
@@ -202,10 +228,10 @@ namespace FirstPersonController
                 // cylinder. This bit of math tries to add to the distance to
                 // treat the curve of the sphere as if it was a cylinder.
                 var cylinderCorrection = hit.point.y - (origin.y - hit.distance - _collider.radius);
-                verticalMovementApplied = 
-                    _collider.center.y - 
+                verticalMovementApplied =
+                    _collider.center.y -
                     hit.distance -
-                    _collider.radius + 
+                    _collider.radius +
                     cylinderCorrection;
 
                 // Raycasts are interesting here. We want to provide a
@@ -219,7 +245,7 @@ namespace FirstPersonController
                     Vector3.down,
                     out hit,
                     maximumDistance,
-                    groundMask,
+                    _groundMask,
                     QueryTriggerInteraction.Ignore
                 ))
                 {
@@ -243,10 +269,10 @@ namespace FirstPersonController
 
         private void ResizeCollider(bool growing = false)
         {
-            _collider.height = _height - _stepHeight;
+            var capsuleHeight = _height - _stepHeight;
+            _collider.height = capsuleHeight;
             _collider.radius = Mathf.Min(_radius, _height / 2f);
-            var relativeCenterY = _collider.height * 0.5f + _stepHeight;
-            _collider.center = new Vector3(0, relativeCenterY, 0);
+            _collider.center = new Vector3(0, capsuleHeight / 2f + _stepHeight, 0);
 
             if (growing)
             {
@@ -348,5 +374,80 @@ namespace FirstPersonController
               _overlapColliders
             );
         }
+
+        private void OnValidate()
+        {
+            _height = Mathf.Max(_height, 0);
+            _stepHeight = Mathf.Clamp(_stepHeight, 0, _height);
+
+            var capsuleHeight = _height - _stepHeight;
+            _radius = Mathf.Clamp(_radius, 0, capsuleHeight / 2f);
+
+            _skinThickness = Mathf.Max(_skinThickness, 0);
+        }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            var capsuleHeight = _height - _stepHeight;
+            var radius = Mathf.Min(_radius, capsuleHeight / 2f);
+            var center = new Vector3(0, capsuleHeight / 2f + _stepHeight, 0);
+
+            var offset = capsuleHeight / 2f - radius;
+            var point0 = center + Vector3.up * offset;
+            var point1 = center + Vector3.down * offset;
+
+            using (new Handles.DrawingScope(transform.localToWorldMatrix))
+            {
+                // Draw the capsule that is our geometry shape for most collision detection
+                Handles.color = Color.green;
+
+                Handles.DrawWireDisc(point0, Vector3.up, radius);
+                Handles.DrawWireDisc(point1, Vector3.down, radius);
+
+                Handles.DrawWireArc(point0, Vector3.left, Vector3.back, -180, radius);
+                Handles.DrawWireArc(point1, Vector3.left, Vector3.back, 180, radius);
+                Handles.DrawWireArc(point0, Vector3.back, Vector3.left, 180, radius);
+                Handles.DrawWireArc(point1, Vector3.back, Vector3.left, -180, radius);
+
+                Handles.DrawLine(
+                    center + new Vector3(0, offset, -radius),
+                    center + new Vector3(0, -offset, -radius)
+                );
+                Handles.DrawLine(
+                    center + new Vector3(0, offset, radius),
+                    center + new Vector3(0, -offset, radius)
+                );
+                Handles.DrawLine(
+                    center + new Vector3(-radius, offset, 0),
+                    center + new Vector3(-radius, -offset, 0)
+                );
+                Handles.DrawLine(
+                    center + new Vector3(radius, offset, 0),
+                    center + new Vector3(radius, -offset, 0)
+                );
+
+                // Draw the cylinder bottom we simulate when doing ground checks
+                Handles.color = Color.yellow;
+                Handles.DrawWireDisc(Vector3.zero, Vector3.up, radius);
+                Handles.DrawLine(
+                    new Vector3(radius, 0, 0), 
+                    new Vector3(radius, _stepHeight + radius, 0)
+                );
+                Handles.DrawLine(
+                    new Vector3(-radius, 0, 0), 
+                    new Vector3(-radius, _stepHeight + radius, 0)
+                );
+                Handles.DrawLine(
+                    new Vector3(0, 0, radius), 
+                    new Vector3(0, _stepHeight + radius, radius)
+                );
+                Handles.DrawLine(
+                    new Vector3(0, 0, -radius), 
+                    new Vector3(0, _stepHeight + radius, -radius)
+                );
+            }
+        }
+#endif
     }
 }
