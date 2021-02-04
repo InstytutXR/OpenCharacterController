@@ -148,6 +148,7 @@ namespace FirstPersonController
 
             var deltaTime = Time.deltaTime;
             var originalPosition = position;
+            var newPosition = originalPosition;
             var movement = velocity * deltaTime;
 
             for (
@@ -156,13 +157,15 @@ namespace FirstPersonController
                 iteration++
             )
             {
-                Sweep(ref movement);
+                Sweep(ref newPosition, ref movement);
             }
 
-            return (position - originalPosition) / deltaTime;
+            _body.position = newPosition;
+
+            return (newPosition - originalPosition) / deltaTime;
         }
 
-        private void Sweep(ref Vector3 movement)
+        private void Sweep(ref Vector3 position, ref Vector3 movement)
         {
             var moveDirection = movement.normalized;
 
@@ -170,9 +173,12 @@ namespace FirstPersonController
             // prevents us from slipping into geometry when our collision
             // geometry is exactly planar with an object.
             var skinMovement = moveDirection * _skinThickness;
-            _body.position -= skinMovement;
+            position -= skinMovement;
             movement += skinMovement;
 
+            // Teleport the body to our exact intermediate location so the sweep
+            // test is correct for this iteration.
+            _body.position = position;
             var didCollide = _body.SweepTest(
                 moveDirection,
                 out var hit,
@@ -184,7 +190,7 @@ namespace FirstPersonController
                 // TODO: OnCollision event
 
                 var allowedMovement = moveDirection * hit.distance;
-                Translate(allowedMovement);
+                position += allowedMovement;
                 movement -= allowedMovement;
 
                 // Remove all movement opposite the normal of the surface we
@@ -195,14 +201,14 @@ namespace FirstPersonController
             }
             else
             {
-                Translate(movement);
+                position += movement;
                 movement = Vector3.zero;
             }
         }
 
         public void Translate(Vector3 movement)
         {
-            _body.MovePosition(position + movement);
+            _body.position += movement;
         }
 
         public bool CheckForGround(
@@ -266,7 +272,7 @@ namespace FirstPersonController
                     hit = _lastGroundHit;
                 }
 
-                Translate(Vector3.up * verticalMovementApplied);
+                _body.position += Vector3.up * verticalMovementApplied;
             }
             else
             {
@@ -305,9 +311,11 @@ namespace FirstPersonController
 
             const int MaxIterations = 5;
 
+            var position = _body.position;
+
             for (int iteration = 0; iteration < MaxIterations; iteration++)
             {
-                int numColliders = FindOverlappingColliders();
+                int numColliders = FindOverlappingColliders(position);
                 if (numColliders <= 0)
                 {
                     break;
@@ -315,9 +323,11 @@ namespace FirstPersonController
 
                 if (FindShortestPenetration(numColliders, out Vector3 translation))
                 {
-                    Translate(translation);
+                    position += translation;
                 }
             }
+
+            _body.position = position;
         }
 
         private bool FindShortestPenetration(
@@ -369,7 +379,7 @@ namespace FirstPersonController
             return foundShortest;
         }
 
-        private int FindOverlappingColliders()
+        private int FindOverlappingColliders(Vector3 position)
         {
             var pointOffset = position + Vector3.up * (_capsuleHeight - _radius);
             var point0 = _capsuleCenter + pointOffset;
