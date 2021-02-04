@@ -123,8 +123,8 @@ namespace FirstPersonController
             var moveDirection = movement.normalized;
 
             // Shift the body back just slightly before sweeping forward. This
-            // prevents us from slipping into geometry when our collision geometry
-            // is exactly planar with an object.
+            // prevents us from slipping into geometry when our collision
+            // geometry is exactly planar with an object.
             var skinMovement = moveDirection * skinThickness;
             _body.position -= skinMovement;
             movement += skinMovement;
@@ -190,9 +190,9 @@ namespace FirstPersonController
 
             if (hitGround)
             {
-                // We're using a sphere but really want it to act like a cylinder. This bit of 
-                // math tries to add to the distance to treat the curve of the sphere as if it 
-                // was a cylinder.
+                // We're using a sphere but really want it to act like a
+                // cylinder. This bit of math tries to add to the distance to
+                // treat the curve of the sphere as if it was a cylinder.
                 var cylinderCorrection = hit.point.y - (origin.y - hit.distance - _collider.radius);
                 verticalMovementApplied = 
                     _collider.center.y - 
@@ -200,11 +200,12 @@ namespace FirstPersonController
                     _collider.radius + 
                     cylinderCorrection;
 
-                // Raycasts are interesting here. We want to provide a RaycastHit to the caller
-                // so they have the normal and other information to work with. However because
-                // we do a SphereCast above we might be hitting an edge of a platform. So what
-                // we do here is do a single point raycast to gauge if we're over a ledge or
-                // not.
+                // Raycasts are interesting here. We want to provide a
+                // RaycastHit to the caller so they have the normal and other
+                // information to work with. However because we do a SphereCast
+                // above we might be hitting an edge of a platform. So what we
+                // do here is do a single point raycast to gauge if we're over a
+                // ledge or not.
                 if (Physics.Raycast(
                     origin,
                     Vector3.down,
