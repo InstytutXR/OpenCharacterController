@@ -14,6 +14,9 @@ namespace FirstPersonController
         private CapsuleCollider _collider;
         private RaycastHit _lastGroundHit;
 
+        private float _capsuleHeight;
+        private Vector3 _capsuleCenter;
+
         [SerializeField, Tooltip("The total height of the character. The capsule height is this value minus the step height.")]
         private float _height = 1.7f;
 
@@ -51,10 +54,13 @@ namespace FirstPersonController
             get => _height;
             set
             {
+                value = Mathf.Max(value, 0f);
                 if (_height != value)
                 {
                     var growing = value > _height;
                     _height = value;
+                    _capsuleHeight = _height - _stepHeight;
+                    _capsuleCenter = new Vector3(0, _capsuleHeight / 2f + _stepHeight, 0);
                     ResizeCollider(growing);
                 }
             }
@@ -65,6 +71,7 @@ namespace FirstPersonController
             get => _radius;
             set
             {
+                value = Mathf.Clamp(value, 0f, _capsuleHeight / 2f);
                 if (_radius != value)
                 {
                     var growing = value > _radius;
@@ -79,16 +86,19 @@ namespace FirstPersonController
             get => _stepHeight;
             set
             {
+                value = Mathf.Clamp(value, 0, _height);
                 if (_stepHeight != value)
                 {
                     // Smaller step height means larger capsule
                     var growing = value < _stepHeight;
                     _stepHeight = value;
+                    _capsuleHeight = _height - _stepHeight;
+                    _capsuleCenter = new Vector3(0, _capsuleHeight / 2f + _stepHeight, 0);
                     ResizeCollider(growing);
                 }
             }
         }
-
+        
         private void Start()
         {
             CreateRigidbody();
@@ -202,19 +212,19 @@ namespace FirstPersonController
          )
         {
             const float PaddingForFloatingPointErrors = 0.001f;
-            var maximumDistance = _collider.center.y + PaddingForFloatingPointErrors;
+            var maximumDistance = _capsuleCenter.y + PaddingForFloatingPointErrors;
 
             if (stickToGround)
             {
                 maximumDistance += _stepHeight;
             }
 
-            maximumDistance -= _collider.radius;
+            maximumDistance -= _radius;
 
-            var origin = position + _collider.center;
+            var origin = position + _capsuleCenter;
             var hitGround = Physics.SphereCast(
                 origin,
-                _collider.radius,
+                _radius,
                 Vector3.down,
                 out hit,
                 maximumDistance,
@@ -227,11 +237,11 @@ namespace FirstPersonController
                 // We're using a sphere but really want it to act like a
                 // cylinder. This bit of math tries to add to the distance to
                 // treat the curve of the sphere as if it was a cylinder.
-                var cylinderCorrection = hit.point.y - (origin.y - hit.distance - _collider.radius);
+                var cylinderCorrection = hit.point.y - (origin.y - hit.distance - _radius);
                 verticalMovementApplied =
-                    _collider.center.y -
+                    _capsuleCenter.y -
                     hit.distance -
-                    _collider.radius +
+                    _radius +
                     cylinderCorrection;
 
                 // Raycasts are interesting here. We want to provide a
@@ -269,10 +279,9 @@ namespace FirstPersonController
 
         private void ResizeCollider(bool growing = false)
         {
-            var capsuleHeight = _height - _stepHeight;
-            _collider.height = capsuleHeight;
-            _collider.radius = Mathf.Min(_radius, _height / 2f);
-            _collider.center = new Vector3(0, capsuleHeight / 2f + _stepHeight, 0);
+            _collider.height = _capsuleHeight;
+            _collider.radius = _radius;
+            _collider.center = _capsuleCenter;
 
             if (growing)
             {
@@ -282,8 +291,7 @@ namespace FirstPersonController
 
         public bool CheckCapsule(Vector3 testPosition, float testHeight)
         {
-            var capsuleHeight = testHeight - _stepHeight;
-            var testRadius = Mathf.Min(_radius, capsuleHeight / 2f);
+            var testRadius = Mathf.Min(_radius, (testHeight - _stepHeight) / 2f);
             var point0 = testPosition + new Vector3(0, _stepHeight + testRadius, 0);
             var point1 = testPosition + new Vector3(0, testHeight - testRadius, 0);
             return Physics.CheckCapsule(point0, point1, testRadius);
@@ -363,14 +371,14 @@ namespace FirstPersonController
 
         private int FindOverlappingColliders()
         {
-            var pointOffset = position + Vector3.up * (_collider.height - _collider.radius);
-            var point0 = _collider.center + pointOffset;
-            var point1 = _collider.center - pointOffset;
+            var pointOffset = position + Vector3.up * (_capsuleHeight - _radius);
+            var point0 = _capsuleCenter + pointOffset;
+            var point1 = _capsuleCenter - pointOffset;
 
             return Physics.OverlapCapsuleNonAlloc(
               point0,
               point1,
-              _collider.radius,
+              _radius,
               _overlapColliders
             );
         }
@@ -379,23 +387,19 @@ namespace FirstPersonController
         {
             _height = Mathf.Max(_height, 0);
             _stepHeight = Mathf.Clamp(_stepHeight, 0, _height);
-
-            var capsuleHeight = _height - _stepHeight;
-            _radius = Mathf.Clamp(_radius, 0, capsuleHeight / 2f);
-
+            _capsuleHeight = _height - _stepHeight;
+            _capsuleCenter = new Vector3(0, _capsuleHeight / 2f + _stepHeight, 0);
+            _radius = Mathf.Clamp(_radius, 0, _capsuleHeight / 2f);
             _skinThickness = Mathf.Max(_skinThickness, 0);
         }
 
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-            var capsuleHeight = _height - _stepHeight;
-            var radius = Mathf.Min(_radius, capsuleHeight / 2f);
-            var center = new Vector3(0, capsuleHeight / 2f + _stepHeight, 0);
-
-            var offset = capsuleHeight / 2f - radius;
-            var point0 = center + Vector3.up * offset;
-            var point1 = center + Vector3.down * offset;
+            var radius = Mathf.Min(_radius, _capsuleHeight / 2f);
+            var offset = _capsuleHeight / 2f - radius;
+            var point0 = _capsuleCenter + Vector3.up * offset;
+            var point1 = _capsuleCenter + Vector3.down * offset;
 
             using (new Handles.DrawingScope(transform.localToWorldMatrix))
             {
@@ -411,20 +415,20 @@ namespace FirstPersonController
                 Handles.DrawWireArc(point1, Vector3.back, Vector3.left, -180, radius);
 
                 Handles.DrawLine(
-                    center + new Vector3(0, offset, -radius),
-                    center + new Vector3(0, -offset, -radius)
+                    _capsuleCenter + new Vector3(0, offset, -radius),
+                    _capsuleCenter + new Vector3(0, -offset, -radius)
                 );
                 Handles.DrawLine(
-                    center + new Vector3(0, offset, radius),
-                    center + new Vector3(0, -offset, radius)
+                    _capsuleCenter + new Vector3(0, offset, radius),
+                    _capsuleCenter + new Vector3(0, -offset, radius)
                 );
                 Handles.DrawLine(
-                    center + new Vector3(-radius, offset, 0),
-                    center + new Vector3(-radius, -offset, 0)
+                    _capsuleCenter + new Vector3(-radius, offset, 0),
+                    _capsuleCenter + new Vector3(-radius, -offset, 0)
                 );
                 Handles.DrawLine(
-                    center + new Vector3(radius, offset, 0),
-                    center + new Vector3(radius, -offset, 0)
+                    _capsuleCenter + new Vector3(radius, offset, 0),
+                    _capsuleCenter + new Vector3(radius, -offset, 0)
                 );
 
                 // Draw the cylinder bottom we simulate when doing ground checks
