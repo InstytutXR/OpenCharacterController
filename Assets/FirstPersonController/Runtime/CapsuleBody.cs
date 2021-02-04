@@ -112,13 +112,7 @@ namespace FirstPersonController
                 iteration++
             )
             {
-                var lateral = new Vector3(movement.x, 0, movement.z);
-                Sweep(ref lateral);
-
-                var vertical = new Vector3(0, movement.y, 0);
-                Sweep(ref vertical);
-
-                movement = lateral + vertical;
+                Sweep(ref movement);
             }
 
             velocity = (_body.position - originalPosition) / Time.deltaTime;
