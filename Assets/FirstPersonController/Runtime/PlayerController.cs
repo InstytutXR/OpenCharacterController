@@ -144,8 +144,10 @@ namespace FirstPersonController
 
             ApplyUserInputMovement(); 
 
-            _velocity = _controlVelocity + new Vector3(0, _verticalVelocity, 0);
-            _body.MoveWithVelocity(ref _velocity);
+            _velocity = _body.MoveWithVelocity(
+                _controlVelocity + 
+                new Vector3(0, _verticalVelocity, 0)
+            );
 
             AdjustEyeHeight();
         }

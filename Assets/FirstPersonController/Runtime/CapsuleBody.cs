@@ -31,7 +31,7 @@ namespace FirstPersonController
 
         public Bounds bounds =>
             new Bounds(
-                _body.position + new Vector3(0, _height / 2f, 0),
+                position + new Vector3(0, _height / 2f, 0),
                 new Vector3(_collider.radius * 2f, _height, _collider.radius * 2f)
             );
 
@@ -96,15 +96,23 @@ namespace FirstPersonController
             _body.detectCollisions = false;
         }
 
-        public void MoveWithVelocity(ref Vector3 velocity)
+        private void OnValidate()
+        {
+            _body = GetComponent<Rigidbody>();
+            _collider = GetComponent<CapsuleCollider>();
+            ResizeCollider();
+        }
+
+        public Vector3 MoveWithVelocity(Vector3 velocity)
         {
             // NOTE: Capping iterations here to avoid any chance of an infinite
             // loop. I don't know what situations would cause us to make more
             // than 10 moves before zeroing out our distance but whatever.
             const int MaxIterations = 10;
 
-            var originalPosition = _body.position;
-            var movement = velocity * Time.deltaTime;
+            var deltaTime = Time.deltaTime;
+            var originalPosition = position;
+            var movement = velocity * deltaTime;
 
             for (
                 int iteration = 0;
@@ -115,7 +123,7 @@ namespace FirstPersonController
                 Sweep(ref movement);
             }
 
-            velocity = (_body.position - originalPosition) / Time.deltaTime;
+            return (position - originalPosition) / deltaTime;
         }
 
         private void Sweep(ref Vector3 movement)
@@ -158,7 +166,7 @@ namespace FirstPersonController
 
         public void Translate(Vector3 movement)
         {
-            _body.MovePosition(_body.position + movement);
+            _body.MovePosition(position + movement);
         }
 
         public bool CheckForGround(
@@ -167,8 +175,8 @@ namespace FirstPersonController
             out float verticalMovementApplied
          )
         {
-            const float paddingForFloatingPointErrors = 0.001f;
-            var maximumDistance = _collider.center.y + paddingForFloatingPointErrors;
+            const float PaddingForFloatingPointErrors = 0.001f;
+            var maximumDistance = _collider.center.y + PaddingForFloatingPointErrors;
 
             if (stickToGround)
             {
@@ -177,7 +185,7 @@ namespace FirstPersonController
 
             maximumDistance -= _collider.radius;
 
-            var origin = _body.position + _collider.center;
+            var origin = position + _collider.center;
             var hitGround = Physics.SphereCast(
                 origin,
                 _collider.radius,
@@ -265,75 +273,80 @@ namespace FirstPersonController
 
             for (int iteration = 0; iteration < MaxIterations; iteration++)
             {
-                var pointOffset = Vector3.up * (_collider.height - _collider.radius);
-                var point0 = _collider.center + pointOffset;
-                var point1 = _collider.center - pointOffset;
-
-                var numColliders = Physics.OverlapCapsuleNonAlloc(
-                  _body.position + point0,
-                  _body.position + point1,
-                  _collider.radius,
-                  _overlapColliders
-                );
-
+                int numColliders = FindOverlappingColliders();
                 if (numColliders <= 0)
                 {
                     break;
                 }
 
-                var shortestCollider = -1;
-                var shortestDirection = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-                var shortestDistance = float.MaxValue;
-
-                for (int colIndex = 0; colIndex < numColliders; colIndex++)
+                if (FindShortestPenetration(numColliders, out Vector3 translation))
                 {
-                    var otherCollider = _overlapColliders[colIndex];
-
-                    Vector3 otherPosition;
-                    Quaternion otherRotation;
-                    if (otherCollider.attachedRigidbody)
-                    {
-                        otherPosition = otherCollider.attachedRigidbody.position;
-                        otherRotation = otherCollider.attachedRigidbody.rotation;
-                    }
-                    else
-                    {
-                        otherPosition = otherCollider.transform.position;
-                        otherRotation = otherCollider.transform.rotation;
-                    }
-
-                    if (Physics.ComputePenetration(
-                        _collider,
-                        _body.position,
-                        Quaternion.identity,
-                        otherCollider,
-                        otherPosition,
-                        otherRotation,
-                        out var direction,
-                        out var distance
-                    ))
-                    {
-                        if (distance < shortestDistance)
-                        {
-                            shortestCollider = colIndex;
-                            shortestDistance = distance;
-                            shortestDirection = direction;
-                        }
-                    }
-                }
-
-                if (shortestCollider >= 0)
-                {
-                    Translate(shortestDirection * shortestDistance);
+                    Translate(translation);
                 }
             }
         }
 
-        private void OnValidate()
+        private bool FindShortestPenetration(
+            int numColliders,
+            out Vector3 translation
+        )
         {
-            _body = GetComponent<Rigidbody>();
-            _collider = GetComponent<CapsuleCollider>();
-            ResizeCollider();
+            var shortestDistance = float.MaxValue;
+            var foundShortest = false;
+            translation = default;
+
+            for (int index = 0; index < numColliders; index++)
+            {
+                var otherCollider = _overlapColliders[index];
+
+                Vector3 otherPosition;
+                Quaternion otherRotation;
+                if (otherCollider.attachedRigidbody)
+                {
+                    otherPosition = otherCollider.attachedRigidbody.position;
+                    otherRotation = otherCollider.attachedRigidbody.rotation;
+                }
+                else
+                {
+                    otherPosition = otherCollider.transform.position;
+                    otherRotation = otherCollider.transform.rotation;
+                }
+
+                if (Physics.ComputePenetration(
+                    _collider,
+                    position,
+                    Quaternion.identity,
+                    otherCollider,
+                    otherPosition,
+                    otherRotation,
+                    out var direction,
+                    out var distance
+                ))
+                {
+                    if (distance < shortestDistance)
+                    {
+                        foundShortest = true;
+                        translation = direction * distance;
+                        shortestDistance = distance;
+                    }
+                }
+            }
+
+            return foundShortest;
+        }
+
+        private int FindOverlappingColliders()
+        {
+            var pointOffset = position + Vector3.up * (_collider.height - _collider.radius);
+            var point0 = _collider.center + pointOffset;
+            var point1 = _collider.center - pointOffset;
+
+            return Physics.OverlapCapsuleNonAlloc(
+              point0,
+              point1,
+              _collider.radius,
+              _overlapColliders
+            );
         }
     }
 }
