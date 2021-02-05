@@ -138,65 +138,18 @@ namespace FirstPersonController
             }
         }
 
-        private void OnLookPerformed(InputAction.CallbackContext ctx)
-        {
-            _look = ctx.ReadValue<Vector2>();
-        }
-
-        private void OnLookCanceled(InputAction.CallbackContext ctx)
-        {
-            _look = Vector2.zero;
-        }
-
-        private void OnMovePerformed(InputAction.CallbackContext ctx)
-        {
-            _move = ctx.ReadValue<Vector2>();
-        }
-
-        private void OnMoveCanceled(InputAction.CallbackContext ctx)
-        {
-            _move = Vector2.zero;
-        }
-
-        private void OnJumpPerformed(InputAction.CallbackContext ctx)
-        {
-            _jump = true;
-        }
-
-        private void OnJumpCanceled(InputAction.CallbackContext ctx)
-        {
-            _jump = false;
-        }
-
-        private void OnRunPerformed(InputAction.CallbackContext ctx)
-        {
-            _run = true;
-        }
-
-        private void OnRunCanceled(InputAction.CallbackContext ctx)
-        {
-            _run = false;
-        }
-
-        private void OnCrouchPerformed(InputAction.CallbackContext ctx)
-        {
-            _crouch = true;
-        }
-
-        private void OnCrouchCanceled(InputAction.CallbackContext ctx)
-        {
-            _crouch = false;
-        }
-
-        private void OnLeanPerformed(InputAction.CallbackContext ctx)
-        {
-            _lean = ctx.ReadValue<float>();
-        }
-
-        private void OnLeanCanceled(InputAction.CallbackContext ctx)
-        {
-            _lean = 0;
-        }
+        private void OnLookPerformed(InputAction.CallbackContext ctx) => _look = ctx.ReadValue<Vector2>();
+        private void OnLookCanceled(InputAction.CallbackContext ctx) => _look = Vector2.zero;
+        private void OnMovePerformed(InputAction.CallbackContext ctx) => _move = ctx.ReadValue<Vector2>();
+        private void OnMoveCanceled(InputAction.CallbackContext ctx) => _move = Vector2.zero;
+        private void OnJumpPerformed(InputAction.CallbackContext ctx) => _jump = true;
+        private void OnJumpCanceled(InputAction.CallbackContext ctx) => _jump = false;
+        private void OnRunPerformed(InputAction.CallbackContext ctx) => _run = true;
+        private void OnRunCanceled(InputAction.CallbackContext ctx) => _run = false;
+        private void OnCrouchPerformed(InputAction.CallbackContext ctx) => _crouch = true;
+        private void OnCrouchCanceled(InputAction.CallbackContext ctx) => _crouch = false;
+        private void OnLeanPerformed(InputAction.CallbackContext ctx) => _lean = ctx.ReadValue<float>();
+        private void OnLeanCanceled(InputAction.CallbackContext ctx) => _lean = 0;
     }
 }
 
