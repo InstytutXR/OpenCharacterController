@@ -194,7 +194,7 @@ namespace FirstPersonController
              */
 
             var groundCollider = _lastGroundHit.collider;
-            var groundMaterial = groundCollider.sharedMaterial;
+            var groundMaterial = groundCollider.material;
 
             float frictionAmount;
 
