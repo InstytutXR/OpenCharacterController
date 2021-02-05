@@ -155,6 +155,17 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "7d56c87f-1656-4932-8de3-eef7aa2cb391",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "1D Axis",
                     "id": "a230ff54-ccd7-4747-93b5-018d608a8834",
                     "path": "1DAxis",
