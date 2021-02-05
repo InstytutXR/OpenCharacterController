@@ -240,6 +240,13 @@ MonoBehaviour:
   _leanDistanceY: -0.05
   _leanAngle: 10
   _leanAnimationSpeed: 10
+  _sliding:
+    speedRequiredToSlide: 3.5
+    colliderHeight: 0.9
+    eyeHeight: 0.8
+    groundFriction: 0.8
+    groundFrictionCombine: 1
+    speedThresholdToExit: 0.8
   walkSpeed:
     _forwardSpeed: 2
     _sidewaysModifier: 1
@@ -280,6 +287,7 @@ MonoBehaviour:
   _radius: 0.22
   _stepHeight: 0.35
   _skinThickness: 0.05
+  _mass: 10
   _groundMask:
     serializedVersion: 2
     m_Bits: 1

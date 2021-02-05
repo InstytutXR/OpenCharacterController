@@ -29,6 +29,9 @@ namespace FirstPersonController
         [SerializeField, Tooltip("An extra value used when sweeping the capsule through the world to improve collision detection.")]
         private float _skinThickness = 0.05f;
 
+        [SerializeField, Tooltip("Mass is used only when sliding to factor into friction. Outside of sliding mass has no meaning for the player.")]
+        private float _mass = 10f;
+
         [SerializeField, Tooltip("Mask of all layers to use when raycasting for the ground.")]
         private LayerMask _groundMask = 1; // "Default" layer by default
 
@@ -98,6 +101,16 @@ namespace FirstPersonController
                 }
             }
         }
+
+        public float mass
+        {
+            get => _mass;
+            set
+            {
+                _mass = Mathf.Min(value, 0.01f);
+                _body.mass = mass;
+            }
+        }
         
         private void Start()
         {
@@ -111,6 +124,8 @@ namespace FirstPersonController
 #if UNITY_EDITOR
             _body.hideFlags = HideFlags.HideInInspector;
 #endif
+
+            _body.mass = _mass;
 
             // Must be dynamic for collision checks to work
             _body.isKinematic = false;
@@ -163,6 +178,58 @@ namespace FirstPersonController
             _body.position = newPosition;
 
             return (newPosition - originalPosition) / deltaTime;
+        }
+
+        public Vector3 ApplyGroundFrictionToVelocity(
+            Vector3 velocity,
+            PhysicMaterialCombine playerFrictionCombine,
+            float playerFriction
+        )
+        {
+            /*
+             * Because we control all of the velocity for our player we also
+             * have to apply friction. Here we're doing a rough job of
+             * applying friction based on physic materials.
+             * https://docs.unity3d.com/Manual/class-PhysicMaterial.html
+             */
+
+            var groundCollider = _lastGroundHit.collider;
+            var groundMaterial = groundCollider.sharedMaterial;
+
+            float frictionAmount;
+
+            if (
+                playerFrictionCombine == PhysicMaterialCombine.Maximum ||
+                groundMaterial.frictionCombine == PhysicMaterialCombine.Maximum
+            )
+            {
+                frictionAmount = Mathf.Max(groundMaterial.dynamicFriction, playerFriction);
+            }
+            else if (
+                playerFrictionCombine == PhysicMaterialCombine.Multiply ||
+                groundMaterial.frictionCombine == PhysicMaterialCombine.Multiply
+            )
+            {
+                frictionAmount = playerFriction * groundMaterial.dynamicFriction;
+            }
+            else if (
+                playerFrictionCombine == PhysicMaterialCombine.Minimum ||
+                groundMaterial.frictionCombine == PhysicMaterialCombine.Minimum
+            )
+            {
+                frictionAmount = Mathf.Min(groundMaterial.dynamicFriction, playerFriction);
+            }
+            else
+            {
+                frictionAmount = (playerFriction + groundMaterial.dynamicFriction) * 0.5f;
+            }
+
+            velocity += Vector3.ClampMagnitude(
+                -velocity.normalized * _mass * frictionAmount * Time.deltaTime,
+                velocity.magnitude
+            );
+
+            return velocity;
         }
 
         private void Sweep(ref Vector3 position, ref Vector3 movement)

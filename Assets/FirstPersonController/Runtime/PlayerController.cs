@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace FirstPersonController
 {
@@ -13,6 +14,7 @@ namespace FirstPersonController
             Walking,
             Running,
             Crouching,
+            Sliding,
         }
 
         private Transform _transform;
@@ -82,9 +84,25 @@ namespace FirstPersonController
         [SerializeField]
         private float _leanAnimationSpeed = 10f;
 
+        [Serializable]
+        public class SlideConfig
+        {
+            public float speedRequiredToSlide = 3.5f;
+            public float colliderHeight = 0.9f;
+            public float eyeHeight = 0.8f;
+            public float groundFriction = 0.8f;
+            public PhysicMaterialCombine groundFrictionCombine = PhysicMaterialCombine.Multiply;
+            public float speedThresholdToExit = 0.8f;
+        }
+
+        [SerializeField]
+        private SlideConfig _sliding = default;
+
         public PlayerSpeed walkSpeed = new PlayerSpeed(2f, 1f, 0.95f);
         public PlayerSpeed runSpeed = new PlayerSpeed(4.5f, 0.9f, 0.6f);
         public PlayerSpeed crouchSpeed = new PlayerSpeed(0.8f, 1f, 1f);
+
+        public float speed => _velocity.magnitude;
 
         public void ResetHeight()
         {
@@ -129,12 +147,17 @@ namespace FirstPersonController
         {
             if (_nextState != _state)
             {
+                Debug.Log($"State Change: {_state} -> {_nextState}");
+
                 _state = _nextState;
 
                 switch (_state)
                 {
                     case State.Crouching:
                         ChangeHeight(_crouchColliderHeight, _crouchEyeHeight);
+                        break;
+                    case State.Sliding:
+                        ChangeHeight(_sliding.colliderHeight, _sliding.eyeHeight);
                         break;
                     default:
                         ResetHeight();
@@ -147,23 +170,128 @@ namespace FirstPersonController
         {
             ApplyStateChange();
             CheckForGround();
-            _verticalVelocity += Physics.gravity.y * Time.deltaTime;
+            AddGravity();
 
+            switch (_state)
+            {
+                case State.Walking: UpdateWalking(); break;
+                case State.Running: UpdateRunning(); break;
+                case State.Crouching: UpdateCrouching(); break;
+                case State.Sliding: UpdateSliding(); break;
+            }
+
+            ApplyVelocityToBody();
+            AdjustEyeHeight();
+            ApplyLean();
+        }
+
+        private void AddGravity()
+        {
+            _verticalVelocity += Physics.gravity.y * Time.deltaTime;
+        }
+
+        private void UpdateCrouching()
+        {
+            TryJump();
+            ApplyUserInputMovement();
+            if (!_input.crouch && CanStandUp())
+            {
+                if (_input.run)
+                {
+                    ChangeState(State.Running);
+                }
+                else
+                {
+                    ChangeState(State.Walking);
+                }
+            }
+        }
+
+        private void UpdateRunning()
+        {
+            TryJump();
+            ApplyUserInputMovement();
+            if (_input.crouch)
+            {
+                Debug.Log($"Speed: {speed} {_sliding.speedRequiredToSlide}");
+                if (speed >= _sliding.speedRequiredToSlide)
+                {
+                    ChangeState(State.Sliding);
+                }
+                else
+                {
+                    ChangeState(State.Crouching);
+                }
+            }
+            else if (!_input.run)
+            {
+                ChangeState(State.Walking);
+            }
+        }
+
+        private void UpdateWalking()
+        {
+            TryJump();
+            ApplyUserInputMovement();
+            if (_input.run)
+            {
+                ChangeState(State.Running);
+            }
+            else if (_input.crouch)
+            {
+                ChangeState(State.Crouching);
+            }
+        }
+
+        private void ApplyVelocityToBody()
+        {
+            _velocity = _controlVelocity;
+            _velocity.y += _verticalVelocity;
+            _velocity = _body.MoveWithVelocity(_velocity);
+        }
+
+        private void TryJump()
+        {
             if (_grounded && _input.jump)
             {
                 _verticalVelocity = Mathf.Sqrt(2f * jumpHeight * -Physics.gravity.y);
                 _grounded = false;
+                ChangeState(State.Walking);
+            }
+        }
+
+        private void UpdateSliding()
+        {
+            TryJump();
+
+            if (_grounded)
+            {
+                // Add gravity projected onto the ground plane for acceleration
+                var gravity = Physics.gravity;
+                var ground = _lastGroundHit.normal;
+                _controlVelocity += (gravity - ground * Vector3.Dot(gravity, ground)) * Time.deltaTime;
+                _controlVelocity = _body.ApplyGroundFrictionToVelocity(
+                    _controlVelocity, 
+                    _sliding.groundFrictionCombine, 
+                    _sliding.groundFriction
+                );
+            }
+            else
+            {
+                ApplyAirDrag();
             }
 
-            ApplyUserInputMovement();
-
-            _velocity = _body.MoveWithVelocity(
-                _controlVelocity +
-                new Vector3(0, _verticalVelocity, 0)
-            );
-
-            AdjustEyeHeight();
-            ApplyLean();
+            if (speed <= _sliding.speedThresholdToExit)
+            {
+                if (_input.run && CanStandUp())
+                {
+                    ChangeState(State.Running);
+                }
+                else
+                {
+                    ChangeState(State.Crouching);
+                }
+            }
         }
 
         private void ApplyUserInputMovement()
@@ -179,44 +307,6 @@ namespace FirstPersonController
             }
 
             var moveInput = _input.moveInput;
-
-            switch (_state)
-            {
-                case State.Walking:
-                    if (_input.run)
-                    {
-                        ChangeState(State.Running);
-                    }
-                    else if (_input.crouch)
-                    {
-                        ChangeState(State.Crouching);
-                    }
-                    break;
-                case State.Running:
-                    if (_input.crouch)
-                    {
-                        ChangeState(State.Crouching);
-                    }
-                    else if (!_input.run)
-                    {
-                        ChangeState(State.Walking);
-                    }
-                    break;
-                case State.Crouching:
-                    if (!_input.crouch && CanStandUp())
-                    {
-                        if (_input.run)
-                        {
-                            ChangeState(State.Running);
-                        }
-                        else
-                        {
-                            ChangeState(State.Walking);
-                        }
-                    }
-                    break;
-            }
-
             var moveVelocity = movementRotation * new Vector3(moveInput.x, 0, moveInput.y);
 
             PlayerSpeed speed = walkSpeed;
@@ -360,19 +450,19 @@ namespace FirstPersonController
 
             var eyeLocalRot = _leanTransform.localEulerAngles;
             var desiredEyeRotThisFrame = Mathf.LerpAngle(
-                eyeLocalRot.z, 
-                -amount * _leanAngle, 
+                eyeLocalRot.z,
+                -amount * _leanAngle,
                 _leanAnimationSpeed * Time.deltaTime
             );
 
             var targetEyeLocalPos = new Vector3(
-                amount * _leanDistanceX, 
-                Mathf.Abs(amount) * _leanDistanceY, 
+                amount * _leanDistanceX,
+                Mathf.Abs(amount) * _leanDistanceY,
                 0
             );
             var desiredEyePosThisFrame = Vector3.Lerp(
-                _leanTransform.localPosition, 
-                targetEyeLocalPos, 
+                _leanTransform.localPosition,
+                targetEyeLocalPos,
                 _leanAnimationSpeed * Time.deltaTime
             );
 
@@ -408,8 +498,8 @@ namespace FirstPersonController
             else
             {
                 desiredEyePosThisFrame = Vector3.Lerp(
-                    _leanTransform.localPosition, 
-                    Vector3.zero, 
+                    _leanTransform.localPosition,
+                    Vector3.zero,
                     _leanAnimationSpeed * Time.deltaTime
                 );
             }
@@ -418,6 +508,11 @@ namespace FirstPersonController
 
             eyeLocalRot.z = desiredEyeRotThisFrame;
             _leanTransform.localEulerAngles = eyeLocalRot;
+        }
+
+        private void OnGUI()
+        {
+            GUI.Label(new Rect(10, 10, 0, 0), new GUIContent($"State: {_state}"));
         }
     }
 }
