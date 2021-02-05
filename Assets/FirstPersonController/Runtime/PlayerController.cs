@@ -84,11 +84,9 @@ namespace FirstPersonController
 
         public bool CanStandUp()
         {
-            return !Physics.Raycast(
-                _body.position,
-                Vector3.up,
-                _defaultColliderHeight,
-                ~(1 << gameObject.layer)
+            return !_body.WouldCapsuleBeColliding(
+                _body.position, 
+                _defaultColliderHeight
             );
         }
 
