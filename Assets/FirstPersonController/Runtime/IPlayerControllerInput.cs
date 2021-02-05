@@ -8,5 +8,6 @@ namespace FirstPersonController
         bool jump { get; }
         bool run { get; }
         bool crouch { get; }
+        float lean { get; }
     }
 }

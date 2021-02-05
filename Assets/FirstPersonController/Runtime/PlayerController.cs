@@ -67,6 +67,21 @@ namespace FirstPersonController
 
         public float jumpHeight = 1.5f;
 
+        [SerializeField]
+        private Transform _leanTransform = default;
+
+        [SerializeField]
+        private float _leanDistanceX = 0.65f;
+
+        [SerializeField]
+        private float _leanDistanceY = -.05f;
+
+        [SerializeField]
+        private float _leanAngle = 10f;
+
+        [SerializeField]
+        private float _leanAnimationSpeed = 10f;
+
         public PlayerSpeed walkSpeed = new PlayerSpeed(2f, 1f, 0.95f);
         public PlayerSpeed runSpeed = new PlayerSpeed(4.5f, 0.9f, 0.6f);
         public PlayerSpeed crouchSpeed = new PlayerSpeed(0.8f, 1f, 1f);
@@ -85,7 +100,7 @@ namespace FirstPersonController
         public bool CanStandUp()
         {
             return !_body.WouldCapsuleBeColliding(
-                _body.position, 
+                _body.position,
                 _defaultColliderHeight
             );
         }
@@ -140,14 +155,15 @@ namespace FirstPersonController
                 _grounded = false;
             }
 
-            ApplyUserInputMovement(); 
+            ApplyUserInputMovement();
 
             _velocity = _body.MoveWithVelocity(
-                _controlVelocity + 
+                _controlVelocity +
                 new Vector3(0, _verticalVelocity, 0)
             );
 
             AdjustEyeHeight();
+            ApplyLean();
         }
 
         private void ApplyUserInputMovement()
@@ -215,8 +231,8 @@ namespace FirstPersonController
             }
 
             var targetSpeed = Mathf.Lerp(
-                _controlVelocity.magnitude, 
-                speed.TargetSpeed(moveInput), 
+                _controlVelocity.magnitude,
+                speed.TargetSpeed(moveInput),
                 acceleration * Time.deltaTime
             );
             moveVelocity *= targetSpeed;
@@ -232,8 +248,8 @@ namespace FirstPersonController
                 {
                     moveVelocity = Vector3.ProjectOnPlane(moveVelocity, Vector3.up);
                     _controlVelocity = Vector3.Lerp(
-                        _controlVelocity, 
-                        moveVelocity, 
+                        _controlVelocity,
+                        moveVelocity,
                         airControl * Time.deltaTime
                     );
                 }
@@ -336,6 +352,72 @@ namespace FirstPersonController
             {
                 _body.Translate(new Vector3(0, oldHeight - eyeLocalPos.y, 0));
             }
+        }
+
+        private void ApplyLean()
+        {
+            var amount = _input.lean;
+
+            var eyeLocalRot = _leanTransform.localEulerAngles;
+            var desiredEyeRotThisFrame = Mathf.LerpAngle(
+                eyeLocalRot.z, 
+                -amount * _leanAngle, 
+                _leanAnimationSpeed * Time.deltaTime
+            );
+
+            var targetEyeLocalPos = new Vector3(
+                amount * _leanDistanceX, 
+                Mathf.Abs(amount) * _leanDistanceY, 
+                0
+            );
+            var desiredEyePosThisFrame = Vector3.Lerp(
+                _leanTransform.localPosition, 
+                targetEyeLocalPos, 
+                _leanAnimationSpeed * Time.deltaTime
+            );
+
+            if (amount != 0)
+            {
+                var ray = new Ray(
+                    _leanTransform.parent.position,
+                    transform.TransformDirection(targetEyeLocalPos.normalized)
+                );
+
+                var didHit = Physics.SphereCast(
+                    ray,
+                    _cameraCollisionRadius,
+                    out var hit,
+                    targetEyeLocalPos.magnitude,
+                    ~(1 << gameObject.layer)
+                );
+
+                if (didHit && desiredEyePosThisFrame.sqrMagnitude > (hit.distance * hit.distance))
+                {
+                    desiredEyePosThisFrame = _leanTransform.parent.InverseTransformPoint(
+                        ray.origin + ray.direction * hit.distance
+                    );
+
+                    // Scale rotation to be the same percentage as our distance
+                    desiredEyeRotThisFrame = Mathf.LerpAngle(
+                        eyeLocalRot.z,
+                        -amount * _leanAngle * (hit.distance / targetEyeLocalPos.magnitude),
+                        _leanAnimationSpeed * Time.deltaTime
+                    );
+                }
+            }
+            else
+            {
+                desiredEyePosThisFrame = Vector3.Lerp(
+                    _leanTransform.localPosition, 
+                    Vector3.zero, 
+                    _leanAnimationSpeed * Time.deltaTime
+                );
+            }
+
+            _leanTransform.localPosition = desiredEyePosThisFrame;
+
+            eyeLocalRot.z = desiredEyeRotThisFrame;
+            _leanTransform.localEulerAngles = eyeLocalRot;
         }
     }
 }

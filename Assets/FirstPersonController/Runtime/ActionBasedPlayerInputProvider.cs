@@ -16,12 +16,14 @@ namespace FirstPersonController
         private InputAction _jumpActionRef;
         private InputAction _runActionRef;
         private InputAction _crouchActionRef;
+        private InputAction _leanActionRef;
 
         private Vector2 _look;
         private Vector2 _move;
         private bool _jump;
         private bool _run;
         private bool _crouch;
+        private float _lean;
 
         [SerializeField, Tooltip("An action that provides a Vector2 for turning and looking up/down.")]
         private PlayerInputActionReference _lookAction;
@@ -38,12 +40,16 @@ namespace FirstPersonController
         [SerializeField, Tooltip("A button action for crouching.")]
         private PlayerInputActionReference _crouchAction;
 
+        [SerializeField, Tooltip("A 1D axis for leaning left and right.")]
+        private PlayerInputActionReference _leanAction;
+
         public float lookHorizontal => _look.x;
         public float lookVertical => _look.y;
         public Vector2 moveInput => _move;
         public bool jump => _jump;
         public bool run => _run;
         public bool crouch => _crouch;
+        public float lean => _lean;
 
         private void OnEnable()
         {
@@ -52,6 +58,7 @@ namespace FirstPersonController
             _jump = false;
             _run = false;
             _crouch = false;
+            _lean = 0;
 
             var playerInput = GetComponentInParent<PlayerInput>();
 
@@ -84,6 +91,12 @@ namespace FirstPersonController
                 _crouchActionRef.performed += OnCrouchPerformed;
                 _crouchActionRef.canceled += OnCrouchCanceled;
             }
+
+            if (_leanAction.TryGetInputAction(playerInput, out _leanActionRef))
+            {
+                _leanActionRef.performed += OnLeanPerformed;
+                _leanActionRef.canceled += OnLeanCanceled;
+            }
         }
 
         private void OnDisable()
@@ -104,6 +117,24 @@ namespace FirstPersonController
             {
                 _jumpActionRef.performed -= OnJumpPerformed;
                 _jumpActionRef.canceled -= OnJumpCanceled;
+            }
+
+            if (_runActionRef != null)
+            {
+                _runActionRef.performed -= OnRunPerformed;
+                _runActionRef.canceled -= OnRunCanceled;
+            }
+
+            if (_crouchActionRef != null)
+            {
+                _crouchActionRef.performed -= OnCrouchPerformed;
+                _crouchActionRef.canceled -= OnCrouchCanceled;
+            }
+
+            if (_leanActionRef != null)
+            {
+                _leanActionRef.performed -= OnLeanPerformed;
+                _leanActionRef.canceled -= OnLeanCanceled;
             }
         }
 
@@ -155,6 +186,16 @@ namespace FirstPersonController
         private void OnCrouchCanceled(InputAction.CallbackContext ctx)
         {
             _crouch = false;
+        }
+
+        private void OnLeanPerformed(InputAction.CallbackContext ctx)
+        {
+            _lean = ctx.ReadValue<float>();
+        }
+
+        private void OnLeanCanceled(InputAction.CallbackContext ctx)
+        {
+            _lean = 0;
         }
     }
 }
