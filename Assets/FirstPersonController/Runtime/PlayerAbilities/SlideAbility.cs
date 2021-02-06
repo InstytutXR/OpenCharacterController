@@ -49,7 +49,7 @@ namespace FirstPersonController
                 if (!controller.CanStandUp() ||
                     !controller.TryActivate<RunAbility>())
                 { 
-                    controller.TryChangeState<CrouchAbility>();
+                    controller.Activate<CrouchAbility>();
                 }
             }
         }

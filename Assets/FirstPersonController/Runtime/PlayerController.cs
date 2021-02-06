@@ -82,17 +82,12 @@ namespace FirstPersonController
         public bool wantsToSlide => wantsToCrouch;
         public float lean => _input.lean;
 
-        public bool CanActivate<T>() where T : PlayerAbility
-        {
-            return CanActivate<T>(out _);
-        }
-
-        public bool CanActivate<T>(out T ability) where T : PlayerAbility
+        public bool TryGetAbility<T>(out T ability) where T : PlayerAbility
         {
             if (_abilitiesByType.TryGetValue(typeof(T), out var genericAbility))
             {
                 ability = genericAbility as T;
-                return ability.CanActivate(this);
+                return true;
             }
             else
             {
@@ -101,16 +96,16 @@ namespace FirstPersonController
             }
         }
 
-        public bool TryChangeState<T>() where T : StatefulPlayerAbility
+        public bool CanActivate<T>(out T ability) where T : PlayerAbility
         {
-            if (_statefulAbilitiesByType.TryGetValue(typeof(T), out var ability))
+            return TryGetAbility(out ability) && ability.CanActivate(this);
+        }
+
+        public void Activate<T>() where T : PlayerAbility
+        {
+            if (TryGetAbility<T>(out var ability))
             {
-                ChangeState(ability);
-                return true;
-            }
-            else
-            {
-                return false;
+                ability.Activate(this);
             }
         }
 
