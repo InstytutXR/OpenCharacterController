@@ -4,7 +4,7 @@ using UnityEngine;
 namespace FirstPersonController
 {
     [Serializable]
-    public sealed class SlideAbility : PlayerAbility
+    public sealed class SlideAbility : StatefulPlayerAbility
     {
         public float speedRequiredToSlide = 3.5f;
         public float colliderHeight = 0.9f;
@@ -18,12 +18,12 @@ namespace FirstPersonController
             return controller.speed >= speedRequiredToSlide;
         }
 
-        public void OnActivate(PlayerController controller)
+        public override void OnEnter(PlayerController controller)
         {
             controller.ChangeHeight(colliderHeight, eyeHeight);
         }
 
-        public void FixedUpdate(PlayerController controller)
+        public override void FixedUpdate(PlayerController controller)
         {
             controller.TryJump();
 
@@ -48,11 +48,11 @@ namespace FirstPersonController
             {
                 if (controller.wantsToRun && controller.CanStandUp())
                 {
-                    controller.ChangeState(PlayerState.Running);
+                    controller.ChangeState<RunAbility>();
                 }
                 else
                 {
-                    controller.ChangeState(PlayerState.Crouching);
+                    controller.ChangeState<CrouchAbility>();
                 }
             }
         }

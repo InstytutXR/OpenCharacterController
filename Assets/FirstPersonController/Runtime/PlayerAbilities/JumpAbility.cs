@@ -15,7 +15,7 @@ namespace FirstPersonController
             {
                 controller.verticalVelocity = Mathf.Sqrt(2f * _jumpHeight * -Physics.gravity.y);
                 controller.grounded = false;
-                controller.ChangeState(PlayerState.Walking);
+                controller.ChangeState<WalkAbility>();
                 return true;
             }
             else

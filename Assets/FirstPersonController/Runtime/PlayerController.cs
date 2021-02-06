@@ -1,15 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 
 namespace FirstPersonController
 {
-    public enum PlayerState
-    {
-        Walking,
-        Running,
-        Crouching,
-        Sliding,
-    }
-
     // NOTE: This code is all very rough and is just used to get
     // the basic features in place. I intend to do a lot of cleanup
     // in here, hence the very messy naming and organization.
@@ -20,8 +15,10 @@ namespace FirstPersonController
         private IPlayerControllerInput _input;
         private CapsuleBody _body;
 
-        private PlayerState _state;
-        private PlayerState _nextState;
+        private Dictionary<Type, StatefulPlayerAbility> _statefulAbilitiesByType;
+
+        private StatefulPlayerAbility _currentState;
+        private StatefulPlayerAbility _nextState;
 
         private RaycastHit _lastGroundHit;
 
@@ -107,8 +104,8 @@ namespace FirstPersonController
         )
         {
             return _body.ApplyGroundFrictionToVelocity(
-                velocity, 
-                playerFrictionCombine, 
+                velocity,
+                playerFrictionCombine,
                 playerFriction
             );
         }
@@ -180,17 +177,24 @@ namespace FirstPersonController
             controlVelocity *= (1f / (1f + (_airDrag * Time.fixedDeltaTime)));
         }
 
-        public void ChangeState(PlayerState nextState)
+        public void ChangeState<T>() where T : StatefulPlayerAbility
         {
-            _nextState = nextState;
+            _nextState = _statefulAbilitiesByType[typeof(T)];
         }
 
         private void Start()
         {
+            _statefulAbilitiesByType = new Dictionary<Type, StatefulPlayerAbility>
+            {
+                [typeof(WalkAbility)] = _walk,
+                [typeof(RunAbility)] = _run,
+                [typeof(CrouchAbility)] = _crouch,
+                [typeof(SlideAbility)] = _slide,
+            };
+
             ResetHeight();
 
-            _state = PlayerState.Walking;
-            _nextState = PlayerState.Walking;
+            _currentState = _walk;
         }
 
         private void OnEnable()
@@ -213,22 +217,12 @@ namespace FirstPersonController
 
         private void ApplyStateChange()
         {
-            if (_nextState != _state)
+            if (_nextState != null && _nextState != _currentState)
             {
-                _state = _nextState;
+                _currentState = _nextState;
+                _currentState.OnEnter(this);
 
-                switch (_state)
-                {
-                    case PlayerState.Crouching:
-                        _crouch.OnActivate(this);
-                        break;
-                    case PlayerState.Sliding:
-                        _slide.OnActivate(this);
-                        break;
-                    default:
-                        ResetHeight();
-                        break;
-                }
+                _nextState = null;
             }
         }
 
@@ -279,13 +273,7 @@ namespace FirstPersonController
 
         private void UpdateStatefulAbility()
         {
-            switch (_state)
-            {
-                case PlayerState.Walking: _walk.FixedUpdate(this); break;
-                case PlayerState.Running: _run.FixedUpdate(this); break;
-                case PlayerState.Crouching: _crouch.FixedUpdate(this); break;
-                case PlayerState.Sliding: _slide.FixedUpdate(this); break;
-            }
+            _currentState.FixedUpdate(this);
         }
 
         private void ApplyVelocityToBody()

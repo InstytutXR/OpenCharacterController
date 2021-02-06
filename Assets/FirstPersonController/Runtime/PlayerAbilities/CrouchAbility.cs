@@ -4,7 +4,7 @@ using UnityEngine;
 namespace FirstPersonController
 {
     [Serializable]
-    public sealed class CrouchAbility : PlayerAbility
+    public sealed class CrouchAbility : StatefulPlayerAbility
     {
         [SerializeField]
         private float _colliderHeight = 0.9f;
@@ -15,12 +15,12 @@ namespace FirstPersonController
         [SerializeField]
         private PlayerSpeed _speed = new PlayerSpeed(0.8f, 1f, 1f);
 
-        public void OnActivate(PlayerController controller)
+        public override void OnEnter(PlayerController controller)
         {
             controller.ChangeHeight(_colliderHeight, _eyeHeight);
         }
 
-        public void FixedUpdate(PlayerController controller)
+        public override void FixedUpdate(PlayerController controller)
         {
             controller.TryJump();
             controller.ApplyUserInputMovement(_speed);
@@ -29,11 +29,11 @@ namespace FirstPersonController
             {
                 if (controller.wantsToRun)
                 {
-                    controller.ChangeState(PlayerState.Running);
+                    controller.ChangeState<RunAbility>();
                 }
                 else
                 {
-                    controller.ChangeState(PlayerState.Walking);
+                    controller.ChangeState<WalkAbility>();
                 }
             }
         }

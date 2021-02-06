@@ -4,27 +4,32 @@ using UnityEngine;
 namespace FirstPersonController
 {
     [Serializable]
-    public sealed class RunAbility : PlayerAbility
+    public sealed class RunAbility : StatefulPlayerAbility
     {
         [SerializeField]
         private PlayerSpeed _speed = new PlayerSpeed(6f, 0.9f, 0.6f);
 
-        public void FixedUpdate(PlayerController controller)
+        public override void OnEnter(PlayerController controller)
+        {
+            controller.ResetHeight();
+        }
+
+        public override void FixedUpdate(PlayerController controller)
         {
             controller.TryJump();
             controller.ApplyUserInputMovement(_speed);
 
             if (controller.wantsToSlide && controller.CanSlide())
             {
-                controller.ChangeState(PlayerState.Sliding);
+                controller.ChangeState<SlideAbility>();
             }
             else if (controller.wantsToCrouch)
             {
-                controller.ChangeState(PlayerState.Crouching);
+                controller.ChangeState<CrouchAbility>();
             }
             else if (controller.wantsToWalk)
             {
-                controller.ChangeState(PlayerState.Walking);
+                controller.ChangeState<WalkAbility>();
             }
         }
     }
