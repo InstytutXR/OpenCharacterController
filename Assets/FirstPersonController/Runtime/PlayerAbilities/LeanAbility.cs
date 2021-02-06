@@ -21,7 +21,7 @@ namespace FirstPersonController
         [SerializeField]
         private float _leanAnimationSpeed = 10f;
 
-        public void FixedUpdate(PlayerController controller)
+        public override void FixedUpdate(PlayerController controller)
         {
             var amount = controller.lean;
 

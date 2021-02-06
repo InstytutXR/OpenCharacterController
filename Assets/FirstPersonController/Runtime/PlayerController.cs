@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace FirstPersonController
@@ -15,7 +14,10 @@ namespace FirstPersonController
         private IPlayerControllerInput _input;
         private CapsuleBody _body;
 
+        private Dictionary<Type, PlayerAbility> _abilitiesByType;
         private Dictionary<Type, StatefulPlayerAbility> _statefulAbilitiesByType;
+
+        private List<PlayerAbility> _nonStatefulAbilities;
 
         private StatefulPlayerAbility _currentState;
         private StatefulPlayerAbility _nextState;
@@ -51,23 +53,16 @@ namespace FirstPersonController
         [SerializeField]
         private float _cameraCollisionRadius = 0.2f;
 
-        [SerializeField]
-        private WalkAbility _walk = default;
-
-        [SerializeField]
-        private RunAbility _run = default;
-
-        [SerializeField]
-        private CrouchAbility _crouch = default;
-
-        [SerializeField]
-        private JumpAbility _jump = default;
-
-        [SerializeField]
-        private LeanAbility _lean = default;
-
-        [SerializeField]
-        private SlideAbility _slide = default;
+        [SerializeReference]
+        private List<PlayerAbility> _abilities = new List<PlayerAbility>
+        {
+            new WalkAbility(),
+            new RunAbility(),
+            new CrouchAbility(),
+            new JumpAbility(),
+            new SlideAbility(),
+            new LeanAbility()
+        };
 
         public bool grounded;
         public float verticalVelocity;
@@ -87,9 +82,14 @@ namespace FirstPersonController
         public bool wantsToSlide => wantsToCrouch;
         public float lean => _input.lean;
 
+        public T PlayerAbility<T>() where T : PlayerAbility
+        {
+            return _abilitiesByType[typeof(T)] as T;
+        }
+
         public bool CanSlide()
         {
-            return _slide.CanActivate(this);
+            return PlayerAbility<SlideAbility>().CanActivate(this);
         }
 
         public void ResetHeight()
@@ -126,7 +126,7 @@ namespace FirstPersonController
 
         public bool TryJump()
         {
-            return _jump.Try(this);
+            return PlayerAbility<JumpAbility>().Try(this);
         }
 
         public void ApplyUserInputMovement(in PlayerSpeed speed)
@@ -184,17 +184,35 @@ namespace FirstPersonController
 
         private void Start()
         {
-            _statefulAbilitiesByType = new Dictionary<Type, StatefulPlayerAbility>
+            _nonStatefulAbilities = new List<PlayerAbility>();
+            _abilitiesByType = new Dictionary<Type, PlayerAbility>();
+            _statefulAbilitiesByType = new Dictionary<Type, StatefulPlayerAbility>();
+
+            StatefulPlayerAbility firstState = null;
+
+            foreach (var ability in _abilities)
             {
-                [typeof(WalkAbility)] = _walk,
-                [typeof(RunAbility)] = _run,
-                [typeof(CrouchAbility)] = _crouch,
-                [typeof(SlideAbility)] = _slide,
-            };
+                var abilityType = ability.GetType();
+                _abilitiesByType[abilityType] = ability;
+
+                if (typeof(StatefulPlayerAbility).IsAssignableFrom(abilityType))
+                {
+                    if (firstState == null)
+                    {
+                        firstState = ability as StatefulPlayerAbility;
+                    }
+
+                    _statefulAbilitiesByType[abilityType] = ability as StatefulPlayerAbility;
+                }
+                else
+                {
+                    _nonStatefulAbilities.Add(ability);
+                }
+            }
 
             ResetHeight();
 
-            _currentState = _walk;
+            _currentState = firstState;
         }
 
         private void OnEnable()
@@ -336,7 +354,10 @@ namespace FirstPersonController
 
         private void UpdatePersistentAbilities()
         {
-            _lean.FixedUpdate(this);
+            foreach (var ability in _nonStatefulAbilities)
+            {
+                ability.FixedUpdate(this);
+            }
         }
     }
 }
