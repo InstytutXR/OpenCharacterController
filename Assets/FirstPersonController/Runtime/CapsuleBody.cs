@@ -29,7 +29,7 @@ namespace FirstPersonController
         [SerializeField, Tooltip("An extra value used when sweeping the capsule through the world to improve collision detection.")]
         private float _skinThickness = 0.05f;
 
-        [SerializeField, Tooltip("Mass is used only when sliding to factor into friction. Outside of sliding mass has no meaning for the player.")]
+        [SerializeField, Tooltip("Mass is used only when a controller applies ground friction manually as when sliding. It has no effect outside of that.")]
         private float _mass = 10f;
 
         [SerializeField, Tooltip("Mask of all layers to use when raycasting for the ground.")]
