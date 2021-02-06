@@ -9,19 +9,15 @@ namespace FirstPersonController
         [SerializeField]
         private float _jumpHeight = 1.5f;
 
-        public bool Try(PlayerController controller)
+        public override bool CanActivate(PlayerController controller)
         {
-            if (controller.grounded && controller.wantsToJump)
-            {
-                controller.verticalVelocity = Mathf.Sqrt(2f * _jumpHeight * -Physics.gravity.y);
-                controller.grounded = false;
-                controller.ChangeState<WalkAbility>();
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return controller.grounded && controller.wantsToJump;
+        }
+
+        public override void Activate(PlayerController controller)
+        {
+            controller.verticalVelocity = Mathf.Sqrt(2f * _jumpHeight * -Physics.gravity.y);
+            controller.grounded = false;
         }
     }
 }

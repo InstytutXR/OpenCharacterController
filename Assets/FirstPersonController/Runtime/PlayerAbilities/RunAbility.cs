@@ -9,6 +9,11 @@ namespace FirstPersonController
         [SerializeField]
         private PlayerSpeed _speed = new PlayerSpeed(6f, 0.9f, 0.6f);
 
+        public override bool CanActivate(PlayerController controller)
+        {
+            return controller.wantsToRun;
+        }
+
         public override void OnEnter(PlayerController controller)
         {
             controller.ResetHeight();
@@ -16,21 +21,8 @@ namespace FirstPersonController
 
         public override void FixedUpdate(PlayerController controller)
         {
-            controller.TryJump();
             controller.ApplyUserInputMovement(_speed);
-
-            if (controller.wantsToSlide && controller.CanSlide())
-            {
-                controller.ChangeState<SlideAbility>();
-            }
-            else if (controller.wantsToCrouch)
-            {
-                controller.ChangeState<CrouchAbility>();
-            }
-            else if (controller.wantsToWalk)
-            {
-                controller.ChangeState<WalkAbility>();
-            }
+            controller.TryActivate<JumpAbility, SlideAbility, CrouchAbility, WalkAbility>();
         }
     }
 }

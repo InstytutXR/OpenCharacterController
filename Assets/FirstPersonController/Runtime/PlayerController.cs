@@ -82,14 +82,73 @@ namespace FirstPersonController
         public bool wantsToSlide => wantsToCrouch;
         public float lean => _input.lean;
 
-        public T PlayerAbility<T>() where T : PlayerAbility
+        public bool CanActivate<T>() where T : PlayerAbility
         {
-            return _abilitiesByType[typeof(T)] as T;
+            return CanActivate<T>(out _);
         }
 
-        public bool CanSlide()
+        public bool CanActivate<T>(out T ability) where T : PlayerAbility
         {
-            return PlayerAbility<SlideAbility>().CanActivate(this);
+            if (_abilitiesByType.TryGetValue(typeof(T), out var genericAbility))
+            {
+                ability = genericAbility as T;
+                return ability.CanActivate(this);
+            }
+            else
+            {
+                ability = default;
+                return false;
+            }
+        }
+
+        public bool TryChangeState<T>() where T : StatefulPlayerAbility
+        {
+            if (_statefulAbilitiesByType.TryGetValue(typeof(T), out var ability))
+            {
+                ChangeState(ability);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool TryActivate<T>() where T : PlayerAbility
+        {
+            if (CanActivate<T>(out var ability))
+            {
+                ability.Activate(this);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool TryActivate<T1, T2>() 
+            where T1 : PlayerAbility 
+            where T2 : PlayerAbility
+        {
+            return TryActivate<T1>() || TryActivate<T2>();
+        }
+
+        public bool TryActivate<T1, T2, T3>()
+            where T1 : PlayerAbility
+            where T2 : PlayerAbility
+            where T3 : PlayerAbility
+        {
+            return TryActivate<T1>() || TryActivate<T2>() || TryActivate<T3>();
+        }
+
+        public bool TryActivate<T1, T2, T3, T4>()
+            where T1 : PlayerAbility
+            where T2 : PlayerAbility
+            where T3 : PlayerAbility
+            where T4 : PlayerAbility
+        {
+            return TryActivate<T1>() || TryActivate<T2>() || TryActivate<T3>() || TryActivate<T4>();
         }
 
         public void ResetHeight()
@@ -122,11 +181,6 @@ namespace FirstPersonController
                 _body.position,
                 _defaultColliderHeight
             );
-        }
-
-        public bool TryJump()
-        {
-            return PlayerAbility<JumpAbility>().Try(this);
         }
 
         public void ApplyUserInputMovement(in PlayerSpeed speed)
@@ -177,9 +231,9 @@ namespace FirstPersonController
             controlVelocity *= (1f / (1f + (_airDrag * Time.fixedDeltaTime)));
         }
 
-        public void ChangeState<T>() where T : StatefulPlayerAbility
+        public void ChangeState(StatefulPlayerAbility state)
         {
-            _nextState = _statefulAbilitiesByType[typeof(T)];
+            _nextState = state;
         }
 
         private void Start()

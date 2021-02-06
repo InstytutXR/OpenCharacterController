@@ -13,9 +13,9 @@ namespace FirstPersonController
         public PhysicMaterialCombine groundFrictionCombine = PhysicMaterialCombine.Multiply;
         public float speedThresholdToExit = 0.8f;
 
-        public bool CanActivate(PlayerController controller)
+        public override bool CanActivate(PlayerController controller)
         {
-            return controller.speed >= speedRequiredToSlide;
+            return controller.wantsToSlide && controller.speed >= speedRequiredToSlide;
         }
 
         public override void OnEnter(PlayerController controller)
@@ -25,7 +25,7 @@ namespace FirstPersonController
 
         public override void FixedUpdate(PlayerController controller)
         {
-            controller.TryJump();
+            controller.TryActivate<JumpAbility>();
 
             if (controller.grounded)
             {
@@ -46,13 +46,10 @@ namespace FirstPersonController
 
             if (controller.speed <= speedThresholdToExit)
             {
-                if (controller.wantsToRun && controller.CanStandUp())
-                {
-                    controller.ChangeState<RunAbility>();
-                }
-                else
-                {
-                    controller.ChangeState<CrouchAbility>();
+                if (!controller.CanStandUp() ||
+                    !controller.TryActivate<RunAbility>())
+                { 
+                    controller.TryChangeState<CrouchAbility>();
                 }
             }
         }
