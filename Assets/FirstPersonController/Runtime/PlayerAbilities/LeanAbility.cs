@@ -21,9 +21,13 @@ namespace FirstPersonController
         [SerializeField]
         private float _leanAnimationSpeed = 10f;
 
+        public override bool updatesWhenNotActive => true;
+
         public override void FixedUpdate()
         {
-            var amount = input.lean;
+            // Because we update when not active, we need to be careful
+            // when we apply input.
+            var amount = isActive ? input.lean : 0;
 
             var eyeLocalRot = _leanTransform.localEulerAngles;
             var desiredEyeRotThisFrame = Mathf.LerpAngle(

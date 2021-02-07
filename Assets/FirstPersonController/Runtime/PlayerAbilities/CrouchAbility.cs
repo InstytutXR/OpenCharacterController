@@ -15,15 +15,9 @@ namespace FirstPersonController
         [SerializeField]
         private PlayerSpeed _speed = new PlayerSpeed(0.8f, 1f, 1f);
 
-        public override bool IsBlocking()
-        {
-            return true;
-        }
-        
-        public override bool CanActivate()
-        {
-            return input.crouch;
-        }
+        public override bool isBlocking => true;
+
+        public override bool canActivate => input.crouch || !controller.canStandUp;
 
         public override void OnActivate()
         {
@@ -39,7 +33,7 @@ namespace FirstPersonController
         {
             controller.ApplyUserInputMovement(_speed);
 
-            if (!input.crouch && controller.CanStandUp())
+            if (!input.crouch && controller.canStandUp)
             {
                 Deactivate();
             }

@@ -9,10 +9,7 @@ namespace FirstPersonController
         [SerializeField]
         private float _jumpHeight = 1.5f;
 
-        public override bool CanActivate()
-        {
-            return controller.grounded && input.jump;
-        }
+        public override bool canActivate => controller.grounded && input.jump;
 
         public override void OnActivate()
         {

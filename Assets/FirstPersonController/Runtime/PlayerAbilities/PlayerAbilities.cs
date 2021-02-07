@@ -28,11 +28,20 @@ namespace FirstPersonController
 
         public void FixedUpdate()
         {
+            bool isBlocked = false;
+            
             foreach (var ability in _abilities)
             {
-                ability.TryActivate();
+                if (isBlocked)
+                {
+                    ability.Deactivate();
+                }
+                else
+                {
+                    ability.TryActivate();
+                }
 
-                if (ability.isActive)
+                if (ability.isActive || ability.updatesWhenNotActive)
                 {
                     ability.FixedUpdate();
                 }
@@ -40,9 +49,9 @@ namespace FirstPersonController
                 // We do a second check of isActive before blocking
                 // so that if an ability deactivates itself we allow
                 // other abilities to trigger this frame.
-                if (ability.isActive && ability.IsBlocking())
+                if (ability.isActive && ability.isBlocking)
                 {
-                    break;
+                    isBlocked = true;
                 }
             }
         }

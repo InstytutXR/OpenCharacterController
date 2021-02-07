@@ -62,6 +62,12 @@ namespace FirstPersonController
         public IPlayerControllerInput input => _input;
         public CapsuleBody body => _body;
 
+        public bool canStandUp =>
+            !_body.WouldCapsuleBeColliding(
+                _body.position,
+                _defaultColliderHeight
+            );
+
         public void ResetHeight()
         {
             ChangeHeight(_defaultColliderHeight, _defaultEyeHeight);
@@ -71,14 +77,6 @@ namespace FirstPersonController
         {
             _body.height = colliderHeight;
             _targetEyeHeight = eyeHeight;
-        }
-
-        public bool CanStandUp()
-        {
-            return !_body.WouldCapsuleBeColliding(
-                _body.position,
-                _defaultColliderHeight
-            );
         }
 
         public void ApplyUserInputMovement(PlayerSpeed playerSpeed)

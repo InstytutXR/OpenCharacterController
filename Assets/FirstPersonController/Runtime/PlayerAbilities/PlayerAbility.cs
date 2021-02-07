@@ -14,14 +14,20 @@ namespace FirstPersonController
 
         public CapsuleBody body => controller.body;
 
+        public virtual bool isBlocking => false;
+
+        public virtual bool updatesWhenNotActive => false;
+
+        public virtual bool canActivate => true;
+
         public void Initialize(PlayerController playerController)
         {
-            this.controller = playerController;
+            controller = playerController;
         }
 
         public void TryActivate()
         {
-            if (!isActive && CanActivate())
+            if (!isActive && canActivate)
             {
                 isActive = true;
                 OnActivate();
@@ -36,13 +42,6 @@ namespace FirstPersonController
                 OnDeactivate();
             }
         }
-        
-        public virtual bool IsBlocking() => false;
-        
-        public virtual bool CanActivate()
-        {
-            return true;
-        }
 
         public virtual void OnActivate()
         {
@@ -51,7 +50,7 @@ namespace FirstPersonController
         public virtual void OnDeactivate()
         {
         }
-
+        
         public virtual void FixedUpdate()
         {
         }

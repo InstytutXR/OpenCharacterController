@@ -9,15 +9,9 @@ namespace FirstPersonController
         [SerializeField]
         private PlayerSpeed _speed = new PlayerSpeed(6f, 0.9f, 0.6f);
 
-        public override bool IsBlocking()
-        {
-            return true;
-        }
+        public override bool isBlocking => true;
 
-        public override bool CanActivate()
-        {
-            return input.run;
-        }
+        public override bool canActivate => input.run && controller.canStandUp;
 
         public override void OnActivate()
         {

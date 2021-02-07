@@ -13,15 +13,9 @@ namespace FirstPersonController
         public PhysicMaterialCombine groundFrictionCombine = PhysicMaterialCombine.Multiply;
         public float speedThresholdToExit = 0.8f;
 
-        public override bool IsBlocking()
-        {
-            return true;
-        }
-        
-        public override bool CanActivate()
-        {
-            return input.crouch && controller.speed >= speedRequiredToSlide;
-        }
+        public override bool isBlocking => true;
+
+        public override bool canActivate => input.crouch && controller.speed >= speedRequiredToSlide;
 
         public override void OnActivate()
         {
