@@ -4,25 +4,34 @@ using UnityEngine;
 namespace FirstPersonController
 {
     [Serializable]
-    public sealed class RunAbility : StatefulPlayerAbility
+    public sealed class RunAbility : PlayerAbility
     {
         [SerializeField]
         private PlayerSpeed _speed = new PlayerSpeed(6f, 0.9f, 0.6f);
 
-        public override bool CanActivate(PlayerController controller)
+        public override bool IsBlocking()
+        {
+            return true;
+        }
+
+        public override bool CanActivate()
         {
             return controller.wantsToRun;
         }
 
-        public override void OnEnter(PlayerController controller)
+        public override void OnActivate()
         {
             controller.ResetHeight();
         }
 
-        public override void FixedUpdate(PlayerController controller)
+        public override void FixedUpdate()
         {
             controller.ApplyUserInputMovement(_speed);
-            controller.TryActivate<JumpAbility, SlideAbility, CrouchAbility, WalkAbility>();
+
+            if (!controller.wantsToRun)
+            {
+                Deactivate();
+            }
         }
     }
 }

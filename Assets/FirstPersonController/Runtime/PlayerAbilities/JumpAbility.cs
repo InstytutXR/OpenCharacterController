@@ -9,15 +9,18 @@ namespace FirstPersonController
         [SerializeField]
         private float _jumpHeight = 1.5f;
 
-        public override bool CanActivate(PlayerController controller)
+        public override bool CanActivate()
         {
             return controller.grounded && controller.wantsToJump;
         }
 
-        public override void Activate(PlayerController controller)
+        public override void OnActivate()
         {
             controller.verticalVelocity = Mathf.Sqrt(2f * _jumpHeight * -Physics.gravity.y);
             controller.grounded = false;
+
+            // Jump is a fire-and-forget ability; it doesn't need to stay activated
+            Deactivate();
         }
     }
 }

@@ -1,20 +1,53 @@
 ﻿using System;
+using UnityEngine;
 
 namespace FirstPersonController
 {
     [Serializable]
     public abstract class PlayerAbility
     {
-        public virtual bool CanActivate(PlayerController controller)
+        public bool isActive { get; private set; }
+        public PlayerController controller { get; private set; }
+
+        public void Initialize(PlayerController playerController)
+        {
+            this.controller = playerController;
+        }
+
+        public void TryActivate()
+        {
+            if (!isActive && CanActivate())
+            {
+                isActive = true;
+                OnActivate();
+            }
+        }
+
+        public void Deactivate()
+        {
+            if (isActive)
+            {
+                isActive = false;
+                OnDeactivate();
+            }
+        }
+        
+        public virtual bool IsBlocking() => false;
+        
+        public virtual bool CanActivate()
         {
             return true;
         }
 
-        public virtual void Activate(PlayerController controller)
+        public virtual void OnActivate()
         {
         }
 
-        public virtual void FixedUpdate(PlayerController controller)
+        public virtual void OnDeactivate()
+        {
+        }
+
+        public virtual void FixedUpdate()
         {
         }
     }

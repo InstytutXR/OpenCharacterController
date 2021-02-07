@@ -14,14 +14,6 @@ namespace FirstPersonController
         private IPlayerControllerInput _input;
         private CapsuleBody _body;
 
-        private Dictionary<Type, PlayerAbility> _abilitiesByType;
-        private Dictionary<Type, StatefulPlayerAbility> _statefulAbilitiesByType;
-
-        private List<PlayerAbility> _nonStatefulAbilities;
-
-        private StatefulPlayerAbility _currentState;
-        private StatefulPlayerAbility _nextState;
-
         private RaycastHit _lastGroundHit;
 
         // Final computed velocity carried between frames for dynamic motion (e.g. sliding)
@@ -56,12 +48,12 @@ namespace FirstPersonController
         [SerializeReference]
         private List<PlayerAbility> _abilities = new List<PlayerAbility>
         {
-            new WalkAbility(),
-            new RunAbility(),
-            new CrouchAbility(),
+            new LeanAbility(),
             new JumpAbility(),
             new SlideAbility(),
-            new LeanAbility()
+            new CrouchAbility(),
+            new RunAbility(),
+            new WalkAbility(),
         };
 
         public bool grounded;
@@ -81,70 +73,6 @@ namespace FirstPersonController
         public bool wantsToStandUp => !_input.crouch;
         public bool wantsToSlide => wantsToCrouch;
         public float lean => _input.lean;
-
-        public bool TryGetAbility<T>(out T ability) where T : PlayerAbility
-        {
-            if (_abilitiesByType.TryGetValue(typeof(T), out var genericAbility))
-            {
-                ability = genericAbility as T;
-                return true;
-            }
-            else
-            {
-                ability = default;
-                return false;
-            }
-        }
-
-        public bool CanActivate<T>(out T ability) where T : PlayerAbility
-        {
-            return TryGetAbility(out ability) && ability.CanActivate(this);
-        }
-
-        public void Activate<T>() where T : PlayerAbility
-        {
-            if (TryGetAbility<T>(out var ability))
-            {
-                ability.Activate(this);
-            }
-        }
-
-        public bool TryActivate<T>() where T : PlayerAbility
-        {
-            if (CanActivate<T>(out var ability))
-            {
-                ability.Activate(this);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool TryActivate<T1, T2>() 
-            where T1 : PlayerAbility 
-            where T2 : PlayerAbility
-        {
-            return TryActivate<T1>() || TryActivate<T2>();
-        }
-
-        public bool TryActivate<T1, T2, T3>()
-            where T1 : PlayerAbility
-            where T2 : PlayerAbility
-            where T3 : PlayerAbility
-        {
-            return TryActivate<T1>() || TryActivate<T2>() || TryActivate<T3>();
-        }
-
-        public bool TryActivate<T1, T2, T3, T4>()
-            where T1 : PlayerAbility
-            where T2 : PlayerAbility
-            where T3 : PlayerAbility
-            where T4 : PlayerAbility
-        {
-            return TryActivate<T1>() || TryActivate<T2>() || TryActivate<T3>() || TryActivate<T4>();
-        }
 
         public void ResetHeight()
         {
@@ -178,7 +106,7 @@ namespace FirstPersonController
             );
         }
 
-        public void ApplyUserInputMovement(in PlayerSpeed speed)
+        public void ApplyUserInputMovement(PlayerSpeed playerSpeed)
         {
             var movementRotation = Quaternion.Euler(0, _transform.eulerAngles.y, 0);
             if (grounded)
@@ -195,7 +123,7 @@ namespace FirstPersonController
 
             var targetSpeed = Mathf.Lerp(
                 controlVelocity.magnitude,
-                speed.TargetSpeed(moveInput),
+                playerSpeed.TargetSpeed(moveInput),
                 _acceleration * Time.deltaTime
             );
             moveVelocity *= targetSpeed;
@@ -226,42 +154,14 @@ namespace FirstPersonController
             controlVelocity *= (1f / (1f + (_airDrag * Time.fixedDeltaTime)));
         }
 
-        public void ChangeState(StatefulPlayerAbility state)
-        {
-            _nextState = state;
-        }
-
         private void Start()
         {
-            _nonStatefulAbilities = new List<PlayerAbility>();
-            _abilitiesByType = new Dictionary<Type, PlayerAbility>();
-            _statefulAbilitiesByType = new Dictionary<Type, StatefulPlayerAbility>();
-
-            StatefulPlayerAbility firstState = null;
-
             foreach (var ability in _abilities)
             {
-                var abilityType = ability.GetType();
-                _abilitiesByType[abilityType] = ability;
-
-                if (typeof(StatefulPlayerAbility).IsAssignableFrom(abilityType))
-                {
-                    if (firstState == null)
-                    {
-                        firstState = ability as StatefulPlayerAbility;
-                    }
-
-                    _statefulAbilitiesByType[abilityType] = ability as StatefulPlayerAbility;
-                }
-                else
-                {
-                    _nonStatefulAbilities.Add(ability);
-                }
+                ability.Initialize(this);
             }
-
+            
             ResetHeight();
-
-            _currentState = firstState;
         }
 
         private void OnEnable()
@@ -273,24 +173,29 @@ namespace FirstPersonController
 
         private void FixedUpdate()
         {
-            ApplyStateChange();
             CheckForGround();
             AddGravity();
-            UpdateStatefulAbility();
+
+            foreach (var ability in _abilities)
+            {
+                ability.TryActivate();
+
+                if (ability.isActive)
+                {
+                    ability.FixedUpdate();
+                }
+
+                // We do a second check of isActive before blocking
+                // so that if an ability deactivates itself we allow
+                // other abilities to trigger this frame.
+                if (ability.isActive && ability.IsBlocking())
+                {
+                    break;
+                }
+            }
+            
             ApplyVelocityToBody();
             AdjustEyeHeight();
-            UpdatePersistentAbilities();
-        }
-
-        private void ApplyStateChange()
-        {
-            if (_nextState != null && _nextState != _currentState)
-            {
-                _currentState = _nextState;
-                _currentState.OnEnter(this);
-
-                _nextState = null;
-            }
         }
 
         private void CheckForGround()
@@ -328,7 +233,6 @@ namespace FirstPersonController
                 verticalVelocity = 0;
 
                 // Reproject our control velocity onto the ground plane without losing magnitude
-                var groundNormal = _lastGroundHit.normal;
                 controlVelocity = (controlVelocity - groundNormal * Vector3.Dot(controlVelocity, groundNormal)).normalized * controlVelocity.magnitude;
             }
         }
@@ -336,11 +240,6 @@ namespace FirstPersonController
         private void AddGravity()
         {
             verticalVelocity += Physics.gravity.y * Time.deltaTime;
-        }
-
-        private void UpdateStatefulAbility()
-        {
-            _currentState.FixedUpdate(this);
         }
 
         private void ApplyVelocityToBody()
@@ -401,11 +300,26 @@ namespace FirstPersonController
             }
         }
 
-        private void UpdatePersistentAbilities()
+        private void OnGUI()
         {
-            foreach (var ability in _nonStatefulAbilities)
+            using (new GUILayout.AreaScope(new Rect(0, 0, 1000, 1000)))
             {
-                ability.FixedUpdate(this);
+                foreach (var ability in _abilities)
+                {
+                    var name = ability.GetType().Name;
+
+                    if (ability.isActive)
+                    {
+                        name += "*";
+                    }
+                    
+                    GUILayout.Label(name);
+
+                    if (ability.isActive && ability.IsBlocking())
+                    {
+                        break;
+                    }
+                }
             }
         }
     }

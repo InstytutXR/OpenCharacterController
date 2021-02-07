@@ -245,33 +245,6 @@ MonoBehaviour:
   references:
     version: 1
     00000000:
-      type: {class: WalkAbility, ns: FirstPersonController, asm: Assembly-CSharp}
-      data:
-        _speed:
-          _forwardSpeed: 2
-          _sidewaysModifier: 1
-          _backwardModifier: 0.95
-    00000001:
-      type: {class: RunAbility, ns: FirstPersonController, asm: Assembly-CSharp}
-      data:
-        _speed:
-          _forwardSpeed: 6
-          _sidewaysModifier: 0.9
-          _backwardModifier: 0.6
-    00000002:
-      type: {class: JumpAbility, ns: FirstPersonController, asm: Assembly-CSharp}
-      data:
-        _jumpHeight: 1.5
-    00000003:
-      type: {class: CrouchAbility, ns: FirstPersonController, asm: Assembly-CSharp}
-      data:
-        _colliderHeight: 0.9
-        _eyeHeight: 0.8
-        _speed:
-          _forwardSpeed: 0.8
-          _sidewaysModifier: 1
-          _backwardModifier: 1
-    00000004:
       type: {class: SlideAbility, ns: FirstPersonController, asm: Assembly-CSharp}
       data:
         speedRequiredToSlide: 3.5
@@ -280,7 +253,18 @@ MonoBehaviour:
         groundFriction: 0.8
         groundFrictionCombine: 1
         speedThresholdToExit: 0.8
-    00000005:
+    00000001:
+      type: {class: JumpAbility, ns: FirstPersonController, asm: Assembly-CSharp}
+      data:
+        _jumpHeight: 1.5
+    00000002:
+      type: {class: RunAbility, ns: FirstPersonController, asm: Assembly-CSharp}
+      data:
+        _speed:
+          _forwardSpeed: 6
+          _sidewaysModifier: 0.9
+          _backwardModifier: 0.6
+    00000003:
       type: {class: LeanAbility, ns: FirstPersonController, asm: Assembly-CSharp}
       data:
         _leanTransform: {fileID: 2937256456387002755}
@@ -288,6 +272,22 @@ MonoBehaviour:
         _leanDistanceY: -0.05
         _leanAngle: 10
         _leanAnimationSpeed: 10
+    00000004:
+      type: {class: CrouchAbility, ns: FirstPersonController, asm: Assembly-CSharp}
+      data:
+        _colliderHeight: 0.9
+        _eyeHeight: 0.8
+        _speed:
+          _forwardSpeed: 0.8
+          _sidewaysModifier: 1
+          _backwardModifier: 1
+    00000005:
+      type: {class: WalkAbility, ns: FirstPersonController, asm: Assembly-CSharp}
+      data:
+        _speed:
+          _forwardSpeed: 2
+          _sidewaysModifier: 1
+          _backwardModifier: 0.95
 --- !u!114 &3839245503589088757
 MonoBehaviour:
   m_ObjectHideFlags: 0

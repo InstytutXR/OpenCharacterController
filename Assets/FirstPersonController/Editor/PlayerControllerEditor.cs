@@ -89,7 +89,7 @@ namespace FirstPersonController
 
             var iteratorProp = _list.serializedProperty.GetArrayElementAtIndex(index);
             var elementName = AbilityName(iteratorProp.managedReferenceFullTypename);
-
+            
             Rect labelfoldRect = rect;
             labelfoldRect.height = HeightHeader;
             labelfoldRect.x += XShiftHeaders;

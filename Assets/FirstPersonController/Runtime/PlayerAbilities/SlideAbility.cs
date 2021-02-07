@@ -4,7 +4,7 @@ using UnityEngine;
 namespace FirstPersonController
 {
     [Serializable]
-    public sealed class SlideAbility : StatefulPlayerAbility
+    public sealed class SlideAbility : PlayerAbility
     {
         public float speedRequiredToSlide = 3.5f;
         public float colliderHeight = 0.9f;
@@ -13,20 +13,28 @@ namespace FirstPersonController
         public PhysicMaterialCombine groundFrictionCombine = PhysicMaterialCombine.Multiply;
         public float speedThresholdToExit = 0.8f;
 
-        public override bool CanActivate(PlayerController controller)
+        public override bool IsBlocking()
+        {
+            return true;
+        }
+        
+        public override bool CanActivate()
         {
             return controller.wantsToSlide && controller.speed >= speedRequiredToSlide;
         }
 
-        public override void OnEnter(PlayerController controller)
+        public override void OnActivate()
         {
             controller.ChangeHeight(colliderHeight, eyeHeight);
         }
 
-        public override void FixedUpdate(PlayerController controller)
+        public override void OnDeactivate()
         {
-            controller.TryActivate<JumpAbility>();
+            controller.ResetHeight();
+        }
 
+        public override void FixedUpdate()
+        {
             if (controller.grounded)
             {
                 // Add gravity projected onto the ground plane for acceleration
@@ -46,11 +54,7 @@ namespace FirstPersonController
 
             if (controller.speed <= speedThresholdToExit)
             {
-                if (!controller.CanStandUp() ||
-                    !controller.TryActivate<RunAbility>())
-                { 
-                    controller.Activate<CrouchAbility>();
-                }
+                Deactivate();
             }
         }
     }
