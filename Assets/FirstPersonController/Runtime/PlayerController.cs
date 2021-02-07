@@ -48,11 +48,11 @@ namespace FirstPersonController
         [SerializeReference]
         private List<PlayerAbility> _abilities = new List<PlayerAbility>
         {
-            new LeanAbility(),
-            new JumpAbility(),
             new SlideAbility(),
-            new CrouchAbility(),
+            new JumpAbility(),
             new RunAbility(),
+            new LeanAbility(),
+            new CrouchAbility(),
             new WalkAbility(),
         };
 
