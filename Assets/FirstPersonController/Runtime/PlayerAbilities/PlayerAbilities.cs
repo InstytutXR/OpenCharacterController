@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace FirstPersonController
 {
     [Serializable]
-    public class PlayerAbilities
+    public class PlayerAbilities : IEnumerable<PlayerAbility>
     {
         [SerializeReference]
         private List<PlayerAbility> _abilities = new List<PlayerAbility>
@@ -55,5 +56,8 @@ namespace FirstPersonController
                 }
             }
         }
+
+        IEnumerator<PlayerAbility> IEnumerable<PlayerAbility>.GetEnumerator() => _abilities.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => _abilities.GetEnumerator();
     }
 }

@@ -251,5 +251,33 @@ namespace FirstPersonController
                 _body.Translate(new Vector3(0, oldHeight - eyeLocalPos.y, 0));
             }
         }
+        
+        private void OnGUI()
+        {
+            using (new GUILayout.AreaScope(new Rect(0, 0, 1000, 1000)))
+            {
+                bool isBlocked = false;
+                
+                foreach (var ability in _abilities)
+                {
+                    var abilityName = ability.GetType().Name;
+                    if (ability.isActive)
+                    {
+                        abilityName += "*";
+                    }
+                    if (isBlocked)
+                    {
+                        abilityName += "!";
+                    }
+                    
+                    GUILayout.Label(abilityName);
+
+                    if (ability.isActive && ability.isBlocking)
+                    {
+                        isBlocked = true;
+                    }
+                }
+            }
+        }
     }
 }
