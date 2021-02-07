@@ -11,6 +11,7 @@ namespace FirstPersonController
         public float eyeHeight = 0.8f;
         public float groundFriction = 0.8f;
         public PhysicMaterialCombine groundFrictionCombine = PhysicMaterialCombine.Multiply;
+        public float playerMass = 10f;
         public float speedThresholdToExit = 0.8f;
 
         public override bool isBlocking => true;
@@ -35,10 +36,12 @@ namespace FirstPersonController
                 var gravity = Physics.gravity;
                 var ground = controller.groundNormal;
                 controller.controlVelocity += (gravity - ground * Vector3.Dot(gravity, ground)) * Time.deltaTime;
-                controller.controlVelocity = body.ApplyGroundFrictionToVelocity(
+                controller.controlVelocity = CustomPhysics.ApplyGroundFrictionToVelocity(
+                    controller.groundMaterial,
                     controller.controlVelocity,
                     groundFrictionCombine,
-                    groundFriction
+                    groundFriction,
+                    playerMass
                 );
             }
             else

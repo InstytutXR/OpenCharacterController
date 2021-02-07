@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace FirstPersonController
 {
@@ -11,8 +10,6 @@ namespace FirstPersonController
         public PlayerController controller { get; private set; }
 
         public IPlayerControllerInput input => controller.input;
-
-        public CapsuleBody body => controller.body;
 
         public virtual bool isBlocking => false;
 

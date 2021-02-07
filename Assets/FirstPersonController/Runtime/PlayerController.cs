@@ -58,9 +58,9 @@ namespace FirstPersonController
 
         public float speed => _velocity.magnitude;
         public Vector3 groundNormal => _lastGroundHit.normal;
+        public PhysicMaterial groundMaterial => _lastGroundHit.collider.material;
         public float cameraCollisionRadius => _cameraCollisionRadius;
         public IPlayerControllerInput input => _input;
-        public CapsuleBody body => _body;
 
         public bool canStandUp
         {
