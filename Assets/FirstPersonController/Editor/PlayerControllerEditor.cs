@@ -14,6 +14,8 @@ namespace FirstPersonController
     [CustomEditor(typeof(PlayerController))]
     public class PlayerControllerEditor : Editor
     {
+        private static readonly List<Type> AbilityTypes = new List<Type>();
+        
         private const float AdditionalSpaceMultiplier = 1.0f;
 
         private const float HeightHeader = 20.0f;
@@ -30,6 +32,18 @@ namespace FirstPersonController
         private ReorderableList _list;
         private GUIStyle _headerStyle;
 
+        static PlayerControllerEditor()
+        {
+            var assembly = Assembly.GetAssembly(typeof(PlayerAbility));
+
+            AbilityTypes.AddRange(
+                assembly
+                    .GetTypes()
+                    .Where(type => type.IsClass && !type.IsAbstract && typeof(PlayerAbility).IsAssignableFrom(type))
+                    .OrderBy(t => t.Name)
+            );
+        }
+
         private void OnEnable()
         {
             _list = new ReorderableList(
@@ -38,7 +52,7 @@ namespace FirstPersonController
                 true, 
                 true,
                 true, 
-                false
+                true
             );
 
             _headerStyle = new GUIStyle();
@@ -46,20 +60,18 @@ namespace FirstPersonController
             _headerStyle.normal.textColor = EditorGUIUtility.isProSkin ? ProSkinTextColor : PersonalSkinTextColor;
             _headerStyle.fontStyle = FontStyle.Bold;
 
-            _list.drawHeaderCallback += OnDrawReorderListHeader;
-            _list.drawElementCallback += OnDrawReorderListElement;
-            _list.drawElementBackgroundCallback += OnDrawReorderListBg;
-            _list.elementHeightCallback += OnReorderListElementHeight;
-            _list.onAddDropdownCallback += OnReorderListAddDropdown;
+            _list.drawHeaderCallback += OnDrawAbilitiesHeader;
+            _list.drawElementCallback += OnDrawAbilityListElement;
+            _list.elementHeightCallback += GetAbilityListElementHeight;
+            _list.onAddDropdownCallback += OnAbilityAddDropdown;
         }
 
         private void OnDisable()
         {
-            _list.drawElementCallback -= OnDrawReorderListElement;
-            _list.elementHeightCallback -= OnReorderListElementHeight;
-            _list.drawElementBackgroundCallback -= OnDrawReorderListBg;
-            _list.drawHeaderCallback -= OnDrawReorderListHeader;
-            _list.onAddDropdownCallback -= OnReorderListAddDropdown;
+            _list.drawElementCallback -= OnDrawAbilityListElement;
+            _list.elementHeightCallback -= GetAbilityListElementHeight;
+            _list.drawHeaderCallback -= OnDrawAbilitiesHeader;
+            _list.onAddDropdownCallback -= OnAbilityAddDropdown;
         }
 
         public override void OnInspectorGUI()
@@ -73,12 +85,12 @@ namespace FirstPersonController
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void OnDrawReorderListHeader(Rect rect)
+        private void OnDrawAbilitiesHeader(Rect rect)
         {
             EditorGUI.LabelField(rect, "Abilities");
         }
 
-        private void OnDrawReorderListElement(Rect rect, int index, bool isActive, bool isFocused)
+        private void OnDrawAbilityListElement(Rect rect, int index, bool isActive, bool isFocused)
         {
             int length = _list.serializedProperty.arraySize;
 
@@ -126,46 +138,12 @@ namespace FirstPersonController
 
         private static string AbilityName(string name)
         {
-            name = name.Substring(name.LastIndexOf('.') + 1);
-            name = name.Substring(0, name.IndexOf("Ability"));
-            return name;
+            return name.Substring(name.LastIndexOf('.') + 1);
         }
 
-        private void OnDrawReorderListBg(Rect rect, int index, bool isActive, bool isFocused)
+        private float GetAbilityListElementHeight(int index)
         {
-            //if (isFocused && isActive)
-            //{
-            //    float height = OnReorderListElementHeight(index);
-
-            //    var prop = _list.serializedProperty.GetArrayElementAtIndex(index);
-
-            //    if (!prop.isExpanded)
-            //    {
-            //        height -= EditorGUIUtility.standardVerticalSpacing;
-            //    }
-
-            //    Rect copyRect = rect;
-            //    copyRect.width = MarginReorderIcon;
-            //    copyRect.height = height;
-
-            //    // draw two rects indepently to avoid overlapping the header label
-            //    Color color = EditorGUIUtility.isProSkin ? ProSkinSelectionBgColor : PersonalSkinSelectionBgColor;
-            //    EditorGUI.DrawRect(rect, color);
-
-            //    float offset = 2.0f;
-            //    rect.x += MarginReorderIcon;
-            //    rect.width -= (MarginReorderIcon + offset);
-
-            //    rect.height = height - HeightHeader + offset;
-            //    rect.y += HeightHeader - offset;
-
-            //    EditorGUI.DrawRect(rect, color);
-            //}
-        }
-
-        private float OnReorderListElementHeight(int index)
-        {
-            int length = _list.serializedProperty.arraySize;
+            var length = _list.serializedProperty.arraySize;
 
             if (length <= 0)
             {
@@ -182,10 +160,10 @@ namespace FirstPersonController
                 return height;
             }
 
-            int i = 0;
+            var i = 0;
             while (iteratorProp.NextVisible(true) && !EqualContents(endProp, iteratorProp))
             {
-                float multiplier = i == 0 ? AdditionalSpaceMultiplier : 1.0f;
+                var multiplier = i == 0 ? AdditionalSpaceMultiplier : 1.0f;
                 height += GetDefaultSpaceBetweenElements() * multiplier;
                 i++;
             }
@@ -193,26 +171,24 @@ namespace FirstPersonController
             return height;
         }
 
-        private void OnReorderListAddDropdown(Rect buttonRect, ReorderableList list)
+        private void OnAbilityAddDropdown(Rect buttonRect, ReorderableList list)
         {
             var menu = new GenericMenu();
-            var showTypes = GetNonAbstractTypesSubclassOf<PlayerAbility>();
 
-            for (int i = 0; i < showTypes.Count; i++)
+            foreach (var abilityType in AbilityTypes)
             {
-                var type = showTypes[i];
-                var itemName = AbilityName(showTypes[i].Name);
-                menu.AddItem(new GUIContent(itemName), true, OnAddItemFromDropdown, type);
+                var itemName = AbilityName(abilityType.Name);
+                menu.AddItem(new GUIContent(itemName), false, OnAddAbilityType, abilityType);
             }
 
             menu.ShowAsContext();
         }
 
-        private void OnAddItemFromDropdown(object obj)
+        private void OnAddAbilityType(object obj)
         {
             var settingsType = (Type)obj;
 
-            int last = _list.serializedProperty.arraySize;
+            var last = _list.serializedProperty.arraySize;
             _list.serializedProperty.InsertArrayElementAtIndex(last);
 
             var lastProp = _list.serializedProperty.GetArrayElementAtIndex(last);
@@ -221,37 +197,14 @@ namespace FirstPersonController
             serializedObject.ApplyModifiedProperties();
         }
 
-        private float GetDefaultSpaceBetweenElements()
+        private static float GetDefaultSpaceBetweenElements()
         {
             return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
         }
 
-        private bool EqualContents(SerializedProperty a, SerializedProperty b)
+        private static bool EqualContents(SerializedProperty a, SerializedProperty b)
         {
             return SerializedProperty.EqualContents(a, b);
-        }
-
-        private List<Type> GetNonAbstractTypesSubclassOf<T>(bool sorted = true) where T : class
-        {
-            var assembly = Assembly.GetAssembly(typeof(T));
-
-            var types = 
-                assembly
-                .GetTypes()
-                .Where(type => type.IsClass && !type.IsAbstract && typeof(T).IsAssignableFrom(type))
-                .ToList();
-
-            if (sorted)
-            {
-                types.Sort(CompareTypesNames);
-            }
-
-            return types;
-        }
-
-        private int CompareTypesNames(Type a, Type b)
-        {
-            return a.Name.CompareTo(b.Name);
         }
     }
 }
