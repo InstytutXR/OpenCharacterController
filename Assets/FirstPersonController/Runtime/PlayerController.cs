@@ -62,11 +62,19 @@ namespace FirstPersonController
         public IPlayerControllerInput input => _input;
         public CapsuleBody body => _body;
 
-        public bool canStandUp =>
-            !_body.WouldCapsuleBeColliding(
-                _body.position,
-                _defaultColliderHeight
-            );
+        public bool canStandUp
+        {
+            get
+            {
+                // Use an ever-so-slightly smaller radius so that our capsule check
+                // here doesn't factor in any walls we're touching.
+                // TODO: Should we be using a sphere cast up instead of a full capsule check?
+                var testRadius = _body.radius - 0.001f;
+                var point0 = _body.position + new Vector3(0, _body.stepHeight + testRadius, 0);
+                var point1 = _body.position + new Vector3(0, _defaultColliderHeight - testRadius, 0);
+                return !Physics.CheckCapsule(point0, point1, testRadius, ~(1 << _body.gameObject.layer));
+            }
+        }
 
         public void ResetHeight()
         {

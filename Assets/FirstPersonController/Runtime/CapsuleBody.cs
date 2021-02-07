@@ -362,14 +362,6 @@ namespace FirstPersonController
             }
         }
 
-        public bool WouldCapsuleBeColliding(Vector3 testPosition, float testHeight)
-        {
-            var testRadius = Mathf.Min(_radius, (testHeight - _stepHeight) / 2f);
-            var point0 = testPosition + new Vector3(0, _stepHeight + testRadius, 0);
-            var point1 = testPosition + new Vector3(0, testHeight - testRadius, 0);
-            return Physics.CheckCapsule(point0, point1, testRadius, ~(1 << gameObject.layer));
-        }
-
         private void ResolveOverlaps()
         {
             // Iterative collision resolution to try and make the capsule not
