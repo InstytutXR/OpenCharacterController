@@ -23,7 +23,7 @@ namespace FirstPersonController
 
         public override void FixedUpdate()
         {
-            var amount = controller.lean;
+            var amount = input.lean;
 
             var eyeLocalRot = _leanTransform.localEulerAngles;
             var desiredEyeRotThisFrame = Mathf.LerpAngle(

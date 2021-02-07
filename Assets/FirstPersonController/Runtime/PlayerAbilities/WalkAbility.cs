@@ -11,14 +11,12 @@ namespace FirstPersonController
 
         public override bool IsBlocking()
         {
+            // NOTE: This kind of assumes that this is the bottom ability
+            // in the player since we're marking it as blocking and always
+            // allowing it to be activated.
             return true;
         }
         
-        public override bool CanActivate()
-        {
-            return controller.wantsToWalk;
-        }
-
         public override void OnActivate()
         {
             controller.ResetHeight();

@@ -11,7 +11,7 @@ namespace FirstPersonController
 
         public override bool CanActivate()
         {
-            return controller.grounded && controller.wantsToJump;
+            return controller.grounded && input.jump;
         }
 
         public override void OnActivate()

@@ -65,31 +65,12 @@ namespace FirstPersonController
         public float speed => _velocity.magnitude;
         public Vector3 groundNormal => _lastGroundHit.normal;
         public float cameraCollisionRadius => _cameraCollisionRadius;
-
-        public bool wantsToWalk => !_input.run;
-        public bool wantsToRun => _input.run;
-        public bool wantsToJump => _input.jump;
-        public bool wantsToCrouch => _input.crouch;
-        public bool wantsToStandUp => !_input.crouch;
-        public bool wantsToSlide => wantsToCrouch;
-        public float lean => _input.lean;
+        public IPlayerControllerInput input => _input;
+        public CapsuleBody body => _body;
 
         public void ResetHeight()
         {
             ChangeHeight(_defaultColliderHeight, _defaultEyeHeight);
-        }
-
-        public Vector3 ApplyGroundFrictionToVelocity(
-            Vector3 velocity,
-            PhysicMaterialCombine playerFrictionCombine,
-            float playerFriction
-        )
-        {
-            return _body.ApplyGroundFrictionToVelocity(
-                velocity,
-                playerFrictionCombine,
-                playerFriction
-            );
         }
 
         public void ChangeHeight(float colliderHeight, float eyeHeight)

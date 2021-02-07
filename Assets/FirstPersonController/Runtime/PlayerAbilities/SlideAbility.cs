@@ -20,7 +20,7 @@ namespace FirstPersonController
         
         public override bool CanActivate()
         {
-            return controller.wantsToSlide && controller.speed >= speedRequiredToSlide;
+            return input.crouch && controller.speed >= speedRequiredToSlide;
         }
 
         public override void OnActivate()
@@ -41,7 +41,7 @@ namespace FirstPersonController
                 var gravity = Physics.gravity;
                 var ground = controller.groundNormal;
                 controller.controlVelocity += (gravity - ground * Vector3.Dot(gravity, ground)) * Time.deltaTime;
-                controller.controlVelocity = controller.ApplyGroundFrictionToVelocity(
+                controller.controlVelocity = body.ApplyGroundFrictionToVelocity(
                     controller.controlVelocity,
                     groundFrictionCombine,
                     groundFriction

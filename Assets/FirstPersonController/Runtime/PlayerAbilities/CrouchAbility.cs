@@ -22,7 +22,7 @@ namespace FirstPersonController
         
         public override bool CanActivate()
         {
-            return controller.wantsToCrouch;
+            return input.crouch;
         }
 
         public override void OnActivate()
@@ -39,7 +39,7 @@ namespace FirstPersonController
         {
             controller.ApplyUserInputMovement(_speed);
 
-            if (controller.wantsToStandUp && controller.CanStandUp())
+            if (!input.crouch && controller.CanStandUp())
             {
                 Deactivate();
             }

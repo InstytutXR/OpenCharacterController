@@ -7,7 +7,12 @@ namespace FirstPersonController
     public abstract class PlayerAbility
     {
         public bool isActive { get; private set; }
+        
         public PlayerController controller { get; private set; }
+
+        public IPlayerControllerInput input => controller.input;
+
+        public CapsuleBody body => controller.body;
 
         public void Initialize(PlayerController playerController)
         {

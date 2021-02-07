@@ -16,7 +16,7 @@ namespace FirstPersonController
 
         public override bool CanActivate()
         {
-            return controller.wantsToRun;
+            return input.run;
         }
 
         public override void OnActivate()
@@ -28,7 +28,7 @@ namespace FirstPersonController
         {
             controller.ApplyUserInputMovement(_speed);
 
-            if (!controller.wantsToRun)
+            if (!input.run)
             {
                 Deactivate();
             }
