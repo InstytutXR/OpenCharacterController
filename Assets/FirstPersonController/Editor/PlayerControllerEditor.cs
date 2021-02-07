@@ -11,78 +11,75 @@ using UnityEngine;
 
 namespace FirstPersonController
 {
-    [CustomEditor(typeof(PlayerController))]
-    public class PlayerControllerEditor : Editor
+    [CustomPropertyDrawer(typeof(PlayerAbilities))]
+    public class PlayerAbilitiesPropertyDrawer : PropertyDrawer
     {
         private static readonly List<Type> AbilityTypes = new List<Type>();
-        
-        private const float AdditionalSpaceMultiplier = 1.0f;
 
-        private const float HeightHeader = 20.0f;
-        private const float MarginReorderIcon = 20.0f;
-        private const float ShrinkHeaderWidth = 15.0f;
-        private const float XShiftHeaders = 15.0f;
-
-        private static readonly Color ProSkinTextColor = new Color(0.8f, 0.8f, 0.8f, 1.0f);
-        private static readonly Color PersonalSkinTextColor = new Color(0.2f, 0.2f, 0.2f, 1.0f);
-
-        private static readonly Color ProSkinSelectionBgColor = new Color(44.0f / 255.0f, 93.0f / 255.0f, 135.0f / 255.0f, 1.0f);
-        private static readonly Color PersonalSkinSelectionBgColor = new Color(58.0f / 255.0f, 114.0f / 255.0f, 176.0f / 255.0f, 1.0f);
-
-        private ReorderableList _list;
-        private GUIStyle _headerStyle;
-
-        static PlayerControllerEditor()
+        static PlayerAbilitiesPropertyDrawer()
         {
             var assembly = Assembly.GetAssembly(typeof(PlayerAbility));
 
             AbilityTypes.AddRange(
-                assembly
-                    .GetTypes()
-                    .Where(type => type.IsClass && !type.IsAbstract && typeof(PlayerAbility).IsAssignableFrom(type))
-                    .OrderBy(t => t.Name)
+                from t in assembly.GetTypes()
+                where t.IsClass && !t.IsAbstract && typeof(PlayerAbility).IsAssignableFrom(t)
+                orderby t.Name
+                select t
             );
         }
 
-        private void OnEnable()
+        private const float AdditionalSpaceMultiplier = 1.0f;
+
+        private const float HeightHeader = 20.0f;
+        private const float ShrinkHeaderWidth = 15.0f;
+        private const float XShiftHeaders = 15.0f;
+
+        private ReorderableList _list;
+
+        public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
         {
-            _list = new ReorderableList(
-                serializedObject, 
-                serializedObject.FindProperty("_abilities"), 
-                true, 
-                true,
-                true, 
-                true
-            );
+            var listProperty = property.FindPropertyRelative("_abilities");
+            var list = GetList(listProperty);
 
-            _headerStyle = new GUIStyle();
-            _headerStyle.alignment = TextAnchor.MiddleLeft;
-            _headerStyle.normal.textColor = EditorGUIUtility.isProSkin ? ProSkinTextColor : PersonalSkinTextColor;
-            _headerStyle.fontStyle = FontStyle.Bold;
+            var height = 0f;
+            for (var i = 0; i < listProperty.arraySize; i++)
+            {
+                height = Mathf.Max(
+                    height,
+                    EditorGUI.GetPropertyHeight(listProperty.GetArrayElementAtIndex(i))
+                );
+            }
 
-            _list.drawHeaderCallback += OnDrawAbilitiesHeader;
-            _list.drawElementCallback += OnDrawAbilityListElement;
-            _list.elementHeightCallback += GetAbilityListElementHeight;
-            _list.onAddDropdownCallback += OnAbilityAddDropdown;
+            list.elementHeight = height;
+            list.DoList(rect);
         }
 
-        private void OnDisable()
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            _list.drawElementCallback -= OnDrawAbilityListElement;
-            _list.elementHeightCallback -= GetAbilityListElementHeight;
-            _list.drawHeaderCallback -= OnDrawAbilitiesHeader;
-            _list.onAddDropdownCallback -= OnAbilityAddDropdown;
+            var listProperty = property.FindPropertyRelative("_abilities");
+            return GetList(listProperty).GetHeight();
         }
 
-        public override void OnInspectorGUI()
+        private ReorderableList GetList(SerializedProperty serializedProperty)
         {
-            serializedObject.Update();
+            if (_list == null)
+            {
+                _list = new ReorderableList(
+                    serializedProperty.serializedObject,
+                    serializedProperty,
+                    true,
+                    true,
+                    true,
+                    true
+                );
 
-            DrawDefaultInspector();
+                _list.drawHeaderCallback += OnDrawAbilitiesHeader;
+                _list.drawElementCallback += OnDrawAbilityListElement;
+                _list.elementHeightCallback += GetAbilityListElementHeight;
+                _list.onAddDropdownCallback += OnAbilityAddDropdown;
+            }
 
-            _list.DoLayoutList();
-
-            serializedObject.ApplyModifiedProperties();
+            return _list;
         }
 
         private void OnDrawAbilitiesHeader(Rect rect)
@@ -101,14 +98,14 @@ namespace FirstPersonController
 
             var iteratorProp = _list.serializedProperty.GetArrayElementAtIndex(index);
             var elementName = AbilityName(iteratorProp.managedReferenceFullTypename);
-            
-            Rect labelfoldRect = rect;
-            labelfoldRect.height = HeightHeader;
-            labelfoldRect.x += XShiftHeaders;
-            labelfoldRect.width -= ShrinkHeaderWidth;
+
+            var foldoutRect = rect;
+            foldoutRect.height = HeightHeader;
+            foldoutRect.x += XShiftHeaders;
+            foldoutRect.width -= ShrinkHeaderWidth;
 
             iteratorProp.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(
-                labelfoldRect,
+                foldoutRect,
                 iteratorProp.isExpanded,
                 elementName
             );
@@ -186,15 +183,13 @@ namespace FirstPersonController
 
         private void OnAddAbilityType(object obj)
         {
-            var settingsType = (Type)obj;
+            var settingsType = (Type) obj;
 
             var last = _list.serializedProperty.arraySize;
             _list.serializedProperty.InsertArrayElementAtIndex(last);
 
             var lastProp = _list.serializedProperty.GetArrayElementAtIndex(last);
             lastProp.managedReferenceValue = Activator.CreateInstance(settingsType);
-
-            serializedObject.ApplyModifiedProperties();
         }
 
         private static float GetDefaultSpaceBetweenElements()

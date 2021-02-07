@@ -233,15 +233,13 @@ MonoBehaviour:
   _eyeHeightTransform: {fileID: 2507410945172005109}
   _cameraCollisionRadius: 0.2
   _abilities:
-  - id: 0
-  - id: 1
-  - id: 2
-  - id: 3
-  - id: 4
-  - id: 5
-  grounded: 0
-  verticalVelocity: 0
-  controlVelocity: {x: 0, y: 0, z: 0}
+    _abilities:
+    - id: 0
+    - id: 1
+    - id: 2
+    - id: 3
+    - id: 4
+    - id: 5
   references:
     version: 1
     00000000:

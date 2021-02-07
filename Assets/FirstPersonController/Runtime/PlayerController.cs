@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace FirstPersonController
@@ -45,21 +44,16 @@ namespace FirstPersonController
         [SerializeField]
         private float _cameraCollisionRadius = 0.2f;
 
-        [SerializeReference]
-        private List<PlayerAbility> _abilities = new List<PlayerAbility>
-        {
-            new SlideAbility(),
-            new JumpAbility(),
-            new RunAbility(),
-            new LeanAbility(),
-            new CrouchAbility(),
-            new WalkAbility(),
-        };
+        [SerializeField] 
+        private PlayerAbilities _abilities = default;
 
+        [NonSerialized]
         public bool grounded;
+        [NonSerialized]
         public float verticalVelocity;
 
         // Control velocity based on movement input and the ground normal
+        [NonSerialized]
         public Vector3 controlVelocity;
 
         public float speed => _velocity.magnitude;
@@ -137,10 +131,7 @@ namespace FirstPersonController
 
         private void Start()
         {
-            foreach (var ability in _abilities)
-            {
-                ability.Initialize(this);
-            }
+            _abilities.Initialize(this);
             
             ResetHeight();
         }
@@ -156,25 +147,7 @@ namespace FirstPersonController
         {
             CheckForGround();
             AddGravity();
-
-            foreach (var ability in _abilities)
-            {
-                ability.TryActivate();
-
-                if (ability.isActive)
-                {
-                    ability.FixedUpdate();
-                }
-
-                // We do a second check of isActive before blocking
-                // so that if an ability deactivates itself we allow
-                // other abilities to trigger this frame.
-                if (ability.isActive && ability.IsBlocking())
-                {
-                    break;
-                }
-            }
-            
+            _abilities.FixedUpdate();
             ApplyVelocityToBody();
             AdjustEyeHeight();
         }
@@ -278,29 +251,6 @@ namespace FirstPersonController
             if (!grounded)
             {
                 _body.Translate(new Vector3(0, oldHeight - eyeLocalPos.y, 0));
-            }
-        }
-
-        private void OnGUI()
-        {
-            using (new GUILayout.AreaScope(new Rect(0, 0, 1000, 1000)))
-            {
-                foreach (var ability in _abilities)
-                {
-                    var name = ability.GetType().Name;
-
-                    if (ability.isActive)
-                    {
-                        name += "*";
-                    }
-                    
-                    GUILayout.Label(name);
-
-                    if (ability.isActive && ability.IsBlocking())
-                    {
-                        break;
-                    }
-                }
             }
         }
     }
