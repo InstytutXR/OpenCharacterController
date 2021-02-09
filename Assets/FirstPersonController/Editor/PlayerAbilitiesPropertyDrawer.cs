@@ -28,29 +28,13 @@ namespace FirstPersonController
             );
         }
 
-        private const float AdditionalSpaceMultiplier = 1.0f;
-
-        private const float HeightHeader = 20.0f;
-        private const float ShrinkHeaderWidth = 15.0f;
-        private const float XShiftHeaders = 15.0f;
-
         private ReorderableList _list;
 
         public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
         {
             var listProperty = property.FindPropertyRelative("_abilities");
             var list = GetList(listProperty);
-
-            var height = 0f;
-            for (var i = 0; i < listProperty.arraySize; i++)
-            {
-                height = Mathf.Max(
-                    height,
-                    EditorGUI.GetPropertyHeight(listProperty.GetArrayElementAtIndex(i))
-                );
-            }
-
-            list.elementHeight = height;
+            list.elementHeight = GetPropertyHeight(property, label);
             list.DoList(rect);
         }
 
@@ -73,64 +57,41 @@ namespace FirstPersonController
                     true
                 );
 
-                _list.drawHeaderCallback += OnDrawAbilitiesHeader;
-                _list.drawElementCallback += OnDrawAbilityListElement;
-                _list.elementHeightCallback += GetAbilityListElementHeight;
-                _list.onAddDropdownCallback += OnAbilityAddDropdown;
+                _list.drawHeaderCallback += OnDrawHeader;
+                _list.drawElementCallback += OnDrawElement;
+                _list.elementHeightCallback += GetElementHeight;
+                _list.onAddDropdownCallback += OnAddDropdown;
             }
 
             return _list;
         }
 
-        private void OnDrawAbilitiesHeader(Rect rect)
+        private void OnDrawHeader(Rect rect)
         {
             EditorGUI.LabelField(rect, "Abilities");
         }
 
-        private void OnDrawAbilityListElement(Rect rect, int index, bool isActive, bool isFocused)
+        private void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)
         {
-            int length = _list.serializedProperty.arraySize;
-
+            var length = _list.serializedProperty.arraySize;
             if (length <= 0)
             {
                 return;
             }
 
-            var iteratorProp = _list.serializedProperty.GetArrayElementAtIndex(index);
-            var elementName = AbilityName(iteratorProp.managedReferenceFullTypename);
-
-            var foldoutRect = rect;
-            foldoutRect.height = HeightHeader;
-            foldoutRect.x += XShiftHeaders;
-            foldoutRect.width -= ShrinkHeaderWidth;
-
-            iteratorProp.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(
-                foldoutRect,
-                iteratorProp.isExpanded,
-                elementName
+            var elementProp = _list.serializedProperty.GetArrayElementAtIndex(index);
+            var elementName = AbilityName(elementProp.managedReferenceFullTypename);
+            EditorGUI.PropertyField(
+                new Rect(
+                    rect.x + 15,
+                    rect.y,
+                    rect.width - 15,
+                    rect.height
+                ), 
+                elementProp, 
+                new GUIContent(elementName), 
+                true
             );
-
-            if (iteratorProp.isExpanded)
-            {
-                using (new EditorGUI.IndentLevelScope())
-                {
-                    var endProp = iteratorProp.GetEndProperty();
-
-                    int i = 0;
-                    while (iteratorProp.NextVisible(true) && !EqualContents(endProp, iteratorProp))
-                    {
-                        float multiplier = i == 0 ? AdditionalSpaceMultiplier : 1.0f;
-                        rect.y += GetDefaultSpaceBetweenElements() * multiplier;
-                        rect.height = EditorGUIUtility.singleLineHeight;
-
-                        EditorGUI.PropertyField(rect, iteratorProp, true);
-
-                        i++;
-                    }
-                }
-            }
-
-            EditorGUI.EndFoldoutHeaderGroup();
         }
 
         private static string AbilityName(string name)
@@ -138,68 +99,42 @@ namespace FirstPersonController
             return name.Substring(name.LastIndexOf('.') + 1);
         }
 
-        private float GetAbilityListElementHeight(int index)
+        private float GetElementHeight(int index)
         {
             var length = _list.serializedProperty.arraySize;
-
             if (length <= 0)
             {
                 return 0.0f;
             }
 
-            var iteratorProp = _list.serializedProperty.GetArrayElementAtIndex(index);
-            var endProp = iteratorProp.GetEndProperty();
-
-            var height = GetDefaultSpaceBetweenElements();
-
-            if (!iteratorProp.isExpanded)
-            {
-                return height;
-            }
-
-            var i = 0;
-            while (iteratorProp.NextVisible(true) && !EqualContents(endProp, iteratorProp))
-            {
-                var multiplier = i == 0 ? AdditionalSpaceMultiplier : 1.0f;
-                height += GetDefaultSpaceBetweenElements() * multiplier;
-                i++;
-            }
-
-            return height;
+            var elementProp = _list.serializedProperty.GetArrayElementAtIndex(index);
+            return EditorGUI.GetPropertyHeight(elementProp);
         }
 
-        private void OnAbilityAddDropdown(Rect buttonRect, ReorderableList list)
+        private void OnAddDropdown(Rect buttonRect, ReorderableList list)
         {
             var menu = new GenericMenu();
 
             foreach (var abilityType in AbilityTypes)
             {
                 var itemName = AbilityName(abilityType.Name);
-                menu.AddItem(new GUIContent(itemName), false, OnAddAbilityType, abilityType);
+                menu.AddItem(new GUIContent(itemName), false, OnAddAbility, abilityType);
             }
 
             menu.ShowAsContext();
         }
 
-        private void OnAddAbilityType(object obj)
+        private void OnAddAbility(object obj)
         {
-            var settingsType = (Type) obj;
+            var settingsType = (Type)obj;
 
             var last = _list.serializedProperty.arraySize;
             _list.serializedProperty.InsertArrayElementAtIndex(last);
 
             var lastProp = _list.serializedProperty.GetArrayElementAtIndex(last);
             lastProp.managedReferenceValue = Activator.CreateInstance(settingsType);
-        }
 
-        private static float GetDefaultSpaceBetweenElements()
-        {
-            return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-        }
-
-        private static bool EqualContents(SerializedProperty a, SerializedProperty b)
-        {
-            return SerializedProperty.EqualContents(a, b);
+            _list.serializedProperty.serializedObject.ApplyModifiedProperties();
         }
     }
 }
