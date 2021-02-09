@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace FirstPersonController
 {
-    [Serializable]
-    public sealed class JumpAbility : PlayerAbility
+    [CreateAssetMenu(menuName = "First Person Controller/Abilities/Jump")]
+    public sealed class Jump : PlayerAbility
     {
         [SerializeField]
         private float _jumpHeight = 1.5f;

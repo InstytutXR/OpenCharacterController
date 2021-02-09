@@ -42,6 +42,9 @@ namespace FirstPersonController
         private Transform _eyeHeightTransform = default;
 
         [SerializeField]
+        private Transform _leanTransform = default;
+
+        [SerializeField]
         private float _cameraCollisionRadius = 0.2f;
 
         [SerializeField] 
@@ -61,6 +64,7 @@ namespace FirstPersonController
         public PhysicMaterial groundMaterial => _lastGroundHit.collider.material;
         public float cameraCollisionRadius => _cameraCollisionRadius;
         public IPlayerControllerInput input => _input;
+        public Transform leanTransform => _leanTransform;
 
         public bool canStandUp
         {

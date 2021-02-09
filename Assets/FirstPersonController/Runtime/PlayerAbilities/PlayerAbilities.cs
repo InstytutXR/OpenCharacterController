@@ -6,18 +6,10 @@ using UnityEngine;
 namespace FirstPersonController
 {
     [Serializable]
-    public class PlayerAbilities : IEnumerable<PlayerAbility>
+    public sealed class PlayerAbilities : IEnumerable<PlayerAbility>
     {
-        [SerializeReference]
-        private List<PlayerAbility> _abilities = new List<PlayerAbility>
-        {
-            new SlideAbility(),
-            new JumpAbility(),
-            new RunAbility(),
-            new LeanAbility(),
-            new CrouchAbility(),
-            new WalkAbility(),
-        };
+        [SerializeReference] 
+        private List<PlayerAbility> _abilities = new List<PlayerAbility>();
 
         public void Initialize(PlayerController controller)
         {

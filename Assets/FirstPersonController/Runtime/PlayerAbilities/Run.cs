@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace FirstPersonController
 {
-    [Serializable]
-    public sealed class WalkAbility : PlayerAbility
+    [CreateAssetMenu(menuName = "First Person Controller/Abilities/Run")]
+    public sealed class Run : PlayerAbility
     {
         [SerializeField]
-        private PlayerSpeed _speed = new PlayerSpeed(2f, 1f, 0.95f);
+        private PlayerSpeed _speed = new PlayerSpeed(6f, 0.9f, 0.6f);
 
         public override bool isBlocking => true;
 
-        public override bool canActivate => controller.canStandUp;
+        public override bool canActivate => input.run && controller.canStandUp;
 
         public override void OnActivate()
         {
@@ -21,6 +21,11 @@ namespace FirstPersonController
         public override void FixedUpdate()
         {
             controller.ApplyUserInputMovement(_speed);
+
+            if (!input.run)
+            {
+                Deactivate();
+            }
         }
     }
 }

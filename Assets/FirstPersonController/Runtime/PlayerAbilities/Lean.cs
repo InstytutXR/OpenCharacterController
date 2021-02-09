@@ -3,12 +3,9 @@ using UnityEngine;
 
 namespace FirstPersonController
 {
-    [Serializable]
-    public sealed class LeanAbility : PlayerAbility
+    [CreateAssetMenu(menuName = "First Person Controller/Abilities/Lean")]
+    public sealed class Lean : PlayerAbility
     {
-        [SerializeField]
-        private Transform _leanTransform = default;
-
         [SerializeField]
         private float _leanDistanceX = 0.65f;
 
@@ -28,8 +25,9 @@ namespace FirstPersonController
             // Because we update when not active, we need to be careful
             // when we apply input.
             var amount = isActive ? input.lean : 0;
+            var leanTransform = controller.leanTransform;
 
-            var eyeLocalRot = _leanTransform.localEulerAngles;
+            var eyeLocalRot = leanTransform.localEulerAngles;
             var desiredEyeRotThisFrame = Mathf.LerpAngle(
                 eyeLocalRot.z,
                 -amount * _leanAngle,
@@ -42,7 +40,7 @@ namespace FirstPersonController
                 0
             );
             var desiredEyePosThisFrame = Vector3.Lerp(
-                _leanTransform.localPosition,
+                leanTransform.localPosition,
                 targetEyeLocalPos,
                 _leanAnimationSpeed * Time.deltaTime
             );
@@ -50,7 +48,7 @@ namespace FirstPersonController
             if (amount != 0)
             {
                 var ray = new Ray(
-                    _leanTransform.parent.position,
+                    leanTransform.parent.position,
                     controller.transform.TransformDirection(targetEyeLocalPos.normalized)
                 );
 
@@ -64,7 +62,7 @@ namespace FirstPersonController
 
                 if (didHit && desiredEyePosThisFrame.sqrMagnitude > (hit.distance * hit.distance))
                 {
-                    desiredEyePosThisFrame = _leanTransform.parent.InverseTransformPoint(
+                    desiredEyePosThisFrame = leanTransform.parent.InverseTransformPoint(
                         ray.origin + ray.direction * hit.distance
                     );
 
@@ -79,16 +77,16 @@ namespace FirstPersonController
             else
             {
                 desiredEyePosThisFrame = Vector3.Lerp(
-                    _leanTransform.localPosition,
+                    leanTransform.localPosition,
                     Vector3.zero,
                     _leanAnimationSpeed * Time.deltaTime
                 );
             }
 
-            _leanTransform.localPosition = desiredEyePosThisFrame;
+            leanTransform.localPosition = desiredEyePosThisFrame;
 
             eyeLocalRot.z = desiredEyeRotThisFrame;
-            _leanTransform.localEulerAngles = eyeLocalRot;
+            leanTransform.localEulerAngles = eyeLocalRot;
         }
     }
 }

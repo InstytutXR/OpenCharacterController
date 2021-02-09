@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace FirstPersonController
 {
-    [Serializable]
-    public sealed class SlideAbility : PlayerAbility
+    [CreateAssetMenu(menuName = "First Person Controller/Abilities/Slide")]
+    public sealed class Slide : PlayerAbility
     {
         public float speedRequiredToSlide = 3.5f;
         public float colliderHeight = 0.9f;

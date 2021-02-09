@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace FirstPersonController
 {
-    [Serializable]
-    public sealed class CrouchAbility : PlayerAbility
+    [CreateAssetMenu(menuName = "First Person Controller/Abilities/Crouch")]
+    public sealed class Crouch : PlayerAbility
     {
         [SerializeField]
         private float _colliderHeight = 0.9f;

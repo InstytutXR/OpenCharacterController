@@ -1,12 +1,12 @@
 ﻿using System;
+using UnityEngine;
 
 namespace FirstPersonController
 {
-    [Serializable]
-    public abstract class PlayerAbility
+    public abstract class PlayerAbility : ScriptableObject
     {
         public bool isActive { get; private set; }
-        
+
         public PlayerController controller { get; private set; }
 
         public IPlayerControllerInput input => controller.input;
@@ -47,7 +47,7 @@ namespace FirstPersonController
         public virtual void OnDeactivate()
         {
         }
-        
+
         public virtual void FixedUpdate()
         {
         }
