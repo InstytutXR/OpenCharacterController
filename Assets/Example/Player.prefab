@@ -250,6 +250,7 @@ MonoBehaviour:
         eyeHeight: 0.8
         groundFriction: 0.8
         groundFrictionCombine: 1
+        playerMass: 10
         speedThresholdToExit: 0.8
     00000001:
       type: {class: JumpAbility, ns: FirstPersonController, asm: Assembly-CSharp}
@@ -314,7 +315,6 @@ MonoBehaviour:
   _radius: 0.22
   _stepHeight: 0.35
   _skinThickness: 0.05
-  _mass: 10
   _groundMask:
     serializedVersion: 2
     m_Bits: 1
