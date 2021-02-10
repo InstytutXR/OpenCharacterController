@@ -11,22 +11,19 @@ namespace FirstPersonController
 
         public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
         {
-            var listProperty = property.FindPropertyRelative("_abilities");
-            var list = GetList(listProperty);
-            list.elementHeight = GetPropertyHeight(property, label);
-            list.DoList(rect);
+            GetList(property).DoList(rect);
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var listProperty = property.FindPropertyRelative("_abilities");
-            return GetList(listProperty).GetHeight();
+            return GetList(property).GetHeight();
         }
 
-        private ReorderableList GetList(SerializedProperty serializedProperty)
+        private ReorderableList GetList(SerializedProperty property)
         {
             if (_list == null)
             {
+                var serializedProperty = property.FindPropertyRelative("_abilities");
                 _list = new ReorderableList(
                     serializedProperty.serializedObject,
                     serializedProperty,
@@ -38,7 +35,7 @@ namespace FirstPersonController
 
                 _list.drawHeaderCallback += OnDrawHeader;
                 _list.drawElementCallback += OnDrawElement;
-                _list.elementHeightCallback += GetElementHeight;
+                _list.elementHeight = EditorGUIUtility.singleLineHeight;
             }
 
             return _list;
@@ -51,23 +48,10 @@ namespace FirstPersonController
 
         private void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)
         {
-            if (index <= _list.serializedProperty.arraySize)
+            if (_list.serializedProperty.arraySize > 0 && index <= _list.serializedProperty.arraySize)
             {
                 var elementProp = _list.serializedProperty.GetArrayElementAtIndex(index);
                 EditorGUI.PropertyField(rect, elementProp);
-            }
-        }
-
-        private float GetElementHeight(int index)
-        {
-            if (index <= _list.serializedProperty.arraySize)
-            {
-                var elementProp = _list.serializedProperty.GetArrayElementAtIndex(index);
-                return EditorGUI.GetPropertyHeight(elementProp);
-            }
-            else
-            {
-                return 0;
             }
         }
     }
