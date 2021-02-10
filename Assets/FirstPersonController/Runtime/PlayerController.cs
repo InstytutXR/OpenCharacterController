@@ -1,23 +1,15 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FirstPersonController
 {
-    // NOTE: This code is all very rough and is just used to get
-    // the basic features in place. I intend to do a lot of cleanup
-    // in here, hence the very messy naming and organization.
     [RequireComponent(typeof(CapsuleBody))]
-    public sealed class PlayerController : MonoBehaviour
+    public sealed class PlayerController : MonoBehaviour, IPlayerController
     {
         private Transform _transform;
         private IPlayerControllerInput _input;
         private CapsuleBody _body;
-
         private RaycastHit _lastGroundHit;
-
-        // Final computed velocity carried between frames for dynamic motion (e.g. sliding)
         private Vector3 _velocity;
-
         private float _targetEyeHeight;
 
         [SerializeField]
@@ -50,21 +42,15 @@ namespace FirstPersonController
         [SerializeField] 
         private PlayerAbilities _abilities = default;
 
-        [NonSerialized]
-        public bool grounded;
-        [NonSerialized]
-        public float verticalVelocity;
-
-        // Control velocity based on movement input and the ground normal
-        [NonSerialized]
-        public Vector3 controlVelocity;
-
+        public bool grounded { get; set; }
+        public float verticalVelocity { get; set; }
+        public Vector3 controlVelocity { get; set; }
         public float speed => _velocity.magnitude;
         public Vector3 groundNormal => _lastGroundHit.normal;
         public PhysicMaterial groundMaterial => _lastGroundHit.collider.material;
         public float cameraCollisionRadius => _cameraCollisionRadius;
-        public IPlayerControllerInput input => _input;
         public Transform leanTransform => _leanTransform;
+        public LayerMask layerMask => 1 << gameObject.layer;
 
         public bool canStandUp
         {
@@ -139,10 +125,14 @@ namespace FirstPersonController
             controlVelocity *= (1f / (1f + (_airDrag * Time.fixedDeltaTime)));
         }
 
+        public Vector3 TransformDirection(Vector3 direction)
+        {
+            return transform.TransformDirection(direction);
+        }
+
         private void Start()
         {
-            _abilities.Initialize(this);
-            
+            _abilities.Initialize(this, _input);
             ResetHeight();
         }
 

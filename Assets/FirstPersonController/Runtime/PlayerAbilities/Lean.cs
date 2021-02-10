@@ -49,7 +49,7 @@ namespace FirstPersonController
             {
                 var ray = new Ray(
                     leanTransform.parent.position,
-                    controller.transform.TransformDirection(targetEyeLocalPos.normalized)
+                    controller.TransformDirection(targetEyeLocalPos.normalized)
                 );
 
                 var didHit = Physics.SphereCast(
@@ -57,7 +57,7 @@ namespace FirstPersonController
                     controller.cameraCollisionRadius,
                     out var hit,
                     targetEyeLocalPos.magnitude,
-                    ~(1 << controller.gameObject.layer)
+                    ~controller.layerMask
                 );
 
                 if (didHit && desiredEyePosThisFrame.sqrMagnitude > (hit.distance * hit.distance))

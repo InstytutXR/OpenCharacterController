@@ -11,11 +11,14 @@ namespace FirstPersonController
         [SerializeReference] 
         private List<PlayerAbility> _abilities = new List<PlayerAbility>();
 
-        public void Initialize(PlayerController controller)
+        public void Initialize(
+            IPlayerController controller,
+            IPlayerControllerInput input
+        )
         {
             foreach (var ability in _abilities)
             {
-                ability.Initialize(controller);
+                ability.Initialize(controller, input);
             }
         }
 

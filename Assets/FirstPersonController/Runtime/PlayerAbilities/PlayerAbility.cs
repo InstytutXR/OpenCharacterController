@@ -7,9 +7,9 @@ namespace FirstPersonController
     {
         public bool isActive { get; private set; }
 
-        public PlayerController controller { get; private set; }
+        protected IPlayerController controller { get; private set; }
 
-        public IPlayerControllerInput input => controller.input;
+        protected IPlayerControllerInput input { get; private set; }
 
         public virtual bool isBlocking => false;
 
@@ -17,9 +17,13 @@ namespace FirstPersonController
 
         public virtual bool canActivate => true;
 
-        public void Initialize(PlayerController playerController)
+        public void Initialize(
+            IPlayerController playerController, 
+            IPlayerControllerInput playerInput
+        )
         {
             controller = playerController;
+            input = playerInput;
         }
 
         public void TryActivate()
