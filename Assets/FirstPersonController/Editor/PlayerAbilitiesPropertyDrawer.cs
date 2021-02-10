@@ -48,11 +48,10 @@ namespace FirstPersonController
 
         private void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)
         {
-            if (_list.serializedProperty.arraySize > 0 && index <= _list.serializedProperty.arraySize)
-            {
-                var elementProp = _list.serializedProperty.GetArrayElementAtIndex(index);
-                EditorGUI.PropertyField(rect, elementProp);
-            }
+            EditorGUI.PropertyField(
+                rect, 
+                _list.serializedProperty.GetArrayElementAtIndex(index)
+            );
         }
     }
 }
