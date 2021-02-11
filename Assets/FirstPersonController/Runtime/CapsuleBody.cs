@@ -32,6 +32,9 @@ namespace FirstPersonController
         [SerializeField, Tooltip("Mask of all layers to use when raycasting for the ground.")]
         private LayerMask _groundMask = 1; // "Default" layer by default
 
+        [SerializeField, Tooltip("When turned on, the feet are treated as a cylinder. When turned off, the feet are treated as a capsule.")]
+        private bool _cylinderFeet = true;
+
         public Vector3 position => _body.position;
 
         public Bounds bounds
@@ -97,6 +100,12 @@ namespace FirstPersonController
                     ResizeCollider(growing);
                 }
             }
+        }
+
+        public bool cylinderFeet
+        {
+            get => _cylinderFeet;
+            set => _cylinderFeet = value;
         }
         
         private void Start()
@@ -240,15 +249,16 @@ namespace FirstPersonController
 
             if (hitGround)
             {
-                // We're using a sphere but really want it to act like a
-                // cylinder. This bit of math tries to add to the distance to
-                // treat the curve of the sphere as if it was a cylinder.
-                var cylinderCorrection = hit.point.y - (origin.y - hit.distance - _radius);
-                verticalMovementApplied =
-                    _capsuleCenter.y -
-                    hit.distance -
-                    _radius +
-                    cylinderCorrection;
+                if (_cylinderFeet)
+                {
+                    // We're using a sphere but really want it to act like a
+                    // cylinder. This bit of math tries to add to the distance to
+                    // treat the curve of the sphere as if it was a cylinder.
+                    var cylinderCorrection = hit.point.y - (origin.y - hit.distance - _radius);
+                    hit.distance += cylinderCorrection;
+                }
+
+                verticalMovementApplied = _capsuleCenter.y - hit.distance - _radius;
 
                 // Raycasts are interesting here. We want to provide a
                 // RaycastHit to the caller so they have the normal and other
@@ -412,8 +422,8 @@ namespace FirstPersonController
                 Handles.DrawWireDisc(point1, Vector3.down, radius);
 
                 Handles.DrawWireArc(point0, Vector3.left, Vector3.back, -180, radius);
-                Handles.DrawWireArc(point1, Vector3.left, Vector3.back, 180, radius);
                 Handles.DrawWireArc(point0, Vector3.back, Vector3.left, 180, radius);
+                Handles.DrawWireArc(point1, Vector3.left, Vector3.back, 180, radius);
                 Handles.DrawWireArc(point1, Vector3.back, Vector3.left, -180, radius);
 
                 Handles.DrawLine(
@@ -433,25 +443,62 @@ namespace FirstPersonController
                     _capsuleCenter + new Vector3(radius, -offset, 0)
                 );
 
-                // Draw the cylinder bottom we simulate when doing ground checks
+                // Draw the bottom we simulate when doing ground checks
                 Handles.color = Color.yellow;
-                Handles.DrawWireDisc(Vector3.zero, Vector3.up, radius);
-                Handles.DrawLine(
-                    new Vector3(radius, 0, 0), 
-                    new Vector3(radius, _stepHeight + radius, 0)
-                );
-                Handles.DrawLine(
-                    new Vector3(-radius, 0, 0), 
-                    new Vector3(-radius, _stepHeight + radius, 0)
-                );
-                Handles.DrawLine(
-                    new Vector3(0, 0, radius), 
-                    new Vector3(0, _stepHeight + radius, radius)
-                );
-                Handles.DrawLine(
-                    new Vector3(0, 0, -radius), 
-                    new Vector3(0, _stepHeight + radius, -radius)
-                );
+                if (_cylinderFeet)
+                {
+                    Handles.DrawWireDisc(Vector3.zero, Vector3.up, radius);
+                    Handles.DrawLine(
+                        new Vector3(radius, 0, 0),
+                        new Vector3(radius, _stepHeight + radius, 0)
+                    );
+                    Handles.DrawLine(
+                        new Vector3(-radius, 0, 0),
+                        new Vector3(-radius, _stepHeight + radius, 0)
+                    );
+                    Handles.DrawLine(
+                        new Vector3(0, 0, radius),
+                        new Vector3(0, _stepHeight + radius, radius)
+                    );
+                    Handles.DrawLine(
+                        new Vector3(0, 0, -radius),
+                        new Vector3(0, _stepHeight + radius, -radius)
+                    );
+                }
+                else
+                {
+                    Handles.DrawWireDisc(new Vector3(0, radius, 0), Vector3.up, radius);
+                    Handles.DrawWireArc(
+                        new Vector3(0, radius, 0), 
+                        Vector3.left, 
+                        Vector3.back, 
+                        180, 
+                        radius
+                    );
+                    Handles.DrawWireArc(
+                        new Vector3(0, radius, 0), 
+                        Vector3.back, 
+                        Vector3.left, 
+                        -180, 
+                        radius
+                    );
+                    Handles.DrawLine(
+                        new Vector3(radius, radius, 0),
+                        new Vector3(radius, _stepHeight + radius, 0)
+                    );
+                    Handles.DrawLine(
+                        new Vector3(-radius, radius, 0),
+                        new Vector3(-radius, _stepHeight + radius, 0)
+                    );
+                    Handles.DrawLine(
+                        new Vector3(0, radius, radius),
+                        new Vector3(0, _stepHeight + radius, radius)
+                    );
+                    Handles.DrawLine(
+                        new Vector3(0, radius, -radius),
+                        new Vector3(0, _stepHeight + radius, -radius)
+                    );
+                }
             }
         }
 #endif
