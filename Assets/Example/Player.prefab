@@ -200,18 +200,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5657410e9bb56ab47a53190d83102b02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lookAction:
-    guidAsString: d0cbb03a-9b84-467b-9c04-abb1f2e82f27
-  _moveAction:
-    guidAsString: 31acc433-3d16-40de-a31a-ec2616cd2efc
-  _jumpAction:
-    guidAsString: 4d6f8e92-6f2b-4e6c-82b8-0fa70ee99e4c
-  _runAction:
-    guidAsString: 9d2ef621-59bd-4fe9-ba65-78e5f42f4e56
-  _crouchAction:
-    guidAsString: 5d6eefc7-b3f9-49d3-a18c-58d2af4e4f3d
-  _leanAction:
-    guidAsString: 366b1427-d04a-4bbd-b787-5e0bb29343c1
+  _lookAction: {fileID: -9060474114735330975, guid: dc78ceb06e851a74c9a4494bfcdf210d,
+    type: 3}
+  _moveAction: {fileID: -2258519566717933459, guid: dc78ceb06e851a74c9a4494bfcdf210d,
+    type: 3}
+  _jumpAction: {fileID: -3607968440979229385, guid: dc78ceb06e851a74c9a4494bfcdf210d,
+    type: 3}
+  _runAction: {fileID: 1373441269579839609, guid: dc78ceb06e851a74c9a4494bfcdf210d,
+    type: 3}
+  _crouchAction: {fileID: -540412817707373601, guid: dc78ceb06e851a74c9a4494bfcdf210d,
+    type: 3}
+  _leanAction: {fileID: -8125644084441013366, guid: dc78ceb06e851a74c9a4494bfcdf210d,
+    type: 3}
 --- !u!114 &6324313413560638111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,6 +272,7 @@ MonoBehaviour:
   _groundMask:
     serializedVersion: 2
     m_Bits: 1
+  _cylinderFeet: 1
 --- !u!1 &9064350302692018732
 GameObject:
   m_ObjectHideFlags: 0
@@ -373,7 +374,10 @@ MonoBehaviour:
     NearClipPlane: 0.1
     FarClipPlane: 1000
     Dutch: 0
+    ModeOverride: 0
     LensShift: {x: 0, y: 0}
+    GateFit: 0
+    m_SensorSize: {x: 1, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

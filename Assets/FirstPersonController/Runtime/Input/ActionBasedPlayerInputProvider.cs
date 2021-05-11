@@ -26,22 +26,22 @@ namespace FirstPersonController
         private float _lean;
 
         [SerializeField, Tooltip("An action that provides a Vector2 for turning and looking up/down.")]
-        private PlayerInputActionReference _lookAction;
+        private InputActionReference _lookAction;
 
         [SerializeField, Tooltip("An action that provides a Vector2 for moving.")]
-        private PlayerInputActionReference _moveAction;
+        private InputActionReference _moveAction;
 
         [SerializeField, Tooltip("A button action for jumping.")]
-        private PlayerInputActionReference _jumpAction;
+        private InputActionReference _jumpAction;
 
         [SerializeField, Tooltip("A button action for running.")]
-        private PlayerInputActionReference _runAction;
+        private InputActionReference _runAction;
 
         [SerializeField, Tooltip("A button action for crouching.")]
-        private PlayerInputActionReference _crouchAction;
+        private InputActionReference _crouchAction;
 
         [SerializeField, Tooltip("A 1D axis for leaning left and right.")]
-        private PlayerInputActionReference _leanAction;
+        private InputActionReference _leanAction;
 
         public float lookHorizontal => _look.x;
         public float lookVertical => _look.y;
@@ -62,37 +62,49 @@ namespace FirstPersonController
 
             var playerInput = GetComponentInParent<PlayerInput>();
 
-            if (_lookAction.TryGetInputAction(playerInput, out _lookActionRef))
+            /*
+             * InputActionReference's .action property loads from the asset but we want
+             * to ensure we load from the PlayerInput component so that our mapping assignments
+             * from the PlayerInput are handled properly by our code as well.
+             */
+
+            _lookActionRef = playerInput.actions.FindAction(_lookAction.action.id);
+            if (_lookActionRef != null)
             {
                 _lookActionRef.performed += OnLookPerformed;
                 _lookActionRef.canceled += OnLookCanceled;
             }
 
-            if (_moveAction.TryGetInputAction(playerInput, out _moveActionRef))
+            _moveActionRef = playerInput.actions.FindAction(_moveAction.action.id);
+            if (_moveActionRef != null)
             {
                 _moveActionRef.performed += OnMovePerformed;
                 _moveActionRef.canceled += OnMoveCanceled;
             }
 
-            if (_jumpAction.TryGetInputAction(playerInput, out _jumpActionRef))
+            _jumpActionRef = playerInput.actions.FindAction(_jumpAction.action.id);
+            if (_jumpActionRef != null)
             {
                 _jumpActionRef.performed += OnJumpPerformed;
                 _jumpActionRef.canceled += OnJumpCanceled;
             }
 
-            if (_runAction.TryGetInputAction(playerInput, out _runActionRef))
+            _runActionRef = playerInput.actions.FindAction(_runAction.action.id);
+            if (_runActionRef != null)
             {
                 _runActionRef.performed += OnRunPerformed;
                 _runActionRef.canceled += OnRunCanceled;
             }
 
-            if (_crouchAction.TryGetInputAction(playerInput, out _crouchActionRef))
+            _crouchActionRef = playerInput.actions.FindAction(_crouchAction.action.id);
+            if (_crouchActionRef != null)
             {
                 _crouchActionRef.performed += OnCrouchPerformed;
                 _crouchActionRef.canceled += OnCrouchCanceled;
             }
 
-            if (_leanAction.TryGetInputAction(playerInput, out _leanActionRef))
+            _leanActionRef = playerInput.actions.FindAction(_leanAction.action.id);
+            if (_leanActionRef != null)
             {
                 _leanActionRef.performed += OnLeanPerformed;
                 _leanActionRef.canceled += OnLeanCanceled;
