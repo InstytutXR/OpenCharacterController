@@ -255,7 +255,7 @@ namespace FirstPersonController
                     // cylinder. This bit of math tries to add to the distance to
                     // treat the curve of the sphere as if it was a cylinder.
                     var cylinderCorrection = hit.point.y - (origin.y - hit.distance - _radius);
-                    hit.distance += cylinderCorrection;
+                    hit.distance -= cylinderCorrection;
                 }
 
                 verticalMovementApplied = _capsuleCenter.y - hit.distance - _radius;
