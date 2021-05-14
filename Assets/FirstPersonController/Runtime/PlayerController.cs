@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace FirstPersonController
 {
@@ -11,6 +12,7 @@ namespace FirstPersonController
         private RaycastHit _lastGroundHit;
         private Vector3 _velocity;
         private float _targetEyeHeight;
+        private readonly List<PlayerAbility> _abilityInstances = new List<PlayerAbility>();
 
         [SerializeField]
         private float _acceleration = 2f;
@@ -39,8 +41,8 @@ namespace FirstPersonController
         [SerializeField]
         private float _cameraCollisionRadius = 0.2f;
 
-        [SerializeField] 
-        private PlayerAbilities _abilities = default;
+        [SerializeField]
+        private PlayerAbilitySO[] _abilities = default;
 
         public bool grounded { get; set; }
         public float verticalVelocity { get; set; }
@@ -132,7 +134,10 @@ namespace FirstPersonController
 
         private void Start()
         {
-            _abilities.Initialize(this, _input);
+            foreach (var so in _abilities)
+            {
+                _abilityInstances.Add(so.CreateAbility(this, _input));
+            }
             ResetHeight();
         }
 
@@ -147,7 +152,7 @@ namespace FirstPersonController
         {
             CheckForGround();
             AddGravity();
-            _abilities.FixedUpdate();
+            UpdateAbilities();
             ApplyVelocityToBody();
             AdjustEyeHeight();
         }
@@ -194,6 +199,36 @@ namespace FirstPersonController
         private void AddGravity()
         {
             verticalVelocity += Physics.gravity.y * Time.deltaTime;
+        }
+
+        private void UpdateAbilities()
+        {
+            bool isBlocked = false;
+
+            foreach (var ability in _abilityInstances)
+            {
+                if (isBlocked)
+                {
+                    ability.Deactivate();
+                }
+                else
+                {
+                    ability.TryActivate();
+                }
+
+                if (ability.isActive || ability.updatesWhenNotActive)
+                {
+                    ability.FixedUpdate();
+                }
+
+                // We do a second check of isActive before blocking
+                // so that if an ability deactivates itself we allow
+                // other abilities to trigger this frame.
+                if (ability.isActive && ability.isBlocking)
+                {
+                    isBlocked = true;
+                }
+            }
         }
 
         private void ApplyVelocityToBody()
@@ -251,34 +286,6 @@ namespace FirstPersonController
             if (!grounded)
             {
                 _body.Translate(new Vector3(0, oldHeight - eyeLocalPos.y, 0));
-            }
-        }
-        
-        private void OnGUI()
-        {
-            using (new GUILayout.AreaScope(new Rect(0, 0, 1000, 1000)))
-            {
-                bool isBlocked = false;
-                
-                foreach (var ability in _abilities)
-                {
-                    var abilityName = ability.GetType().Name;
-                    if (ability.isActive)
-                    {
-                        abilityName += "*";
-                    }
-                    if (isBlocked)
-                    {
-                        abilityName += "!";
-                    }
-                    
-                    GUILayout.Label(abilityName);
-
-                    if (ability.isActive && ability.isBlocking)
-                    {
-                        isBlocked = true;
-                    }
-                }
             }
         }
     }
