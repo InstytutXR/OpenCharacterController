@@ -4,15 +4,15 @@ using UnityEngine.InputSystem;
 namespace FirstPersonController
 {
     [CreateAssetMenu(menuName = "First Person Controller/Intents/Float Intent From Input Action Y Axis")]
-    public sealed class FloatIntentFromInputActionYAxisSO : FloatIntentSO
+    public sealed class LookUpDownIntentFromInputActionYAxisSO : LookUpDownIntentSO
     {
         [SerializeField]
         private InputActionReference _action;
         public InputActionReference action => _action;
 
-        public override IFloatIntent Create()
+        public override ILookUpDownIntent Create()
         {
-            return new FloatIntentFromInputActionYAxis(this);
+            return new LookUpDownIntentFromInputActionYAxis(this);
         }
     }
 }

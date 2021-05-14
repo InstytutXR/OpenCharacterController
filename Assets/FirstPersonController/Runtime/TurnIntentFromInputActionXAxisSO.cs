@@ -4,15 +4,15 @@ using UnityEngine.InputSystem;
 namespace FirstPersonController
 {
     [CreateAssetMenu(menuName = "First Person Controller/Intents/Float Intent From Input Action X Axis")]
-    public sealed class FloatIntentFromInputActionXAxisSO : FloatIntentSO
+    public sealed class TurnIntentFromInputActionXAxisSO : TurnIntentSO
     {
         [SerializeField]
         private InputActionReference _action;
         public InputActionReference action => _action;
 
-        public override IFloatIntent Create()
+        public override ITurnIntent Create()
         {
-            return new FloatIntentFromInputActionXAxis(this);
+            return new TurnIntentFromInputActionXAxis(this);
         }
     }
 }

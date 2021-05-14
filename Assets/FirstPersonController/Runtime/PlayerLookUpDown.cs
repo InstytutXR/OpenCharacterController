@@ -5,10 +5,10 @@ namespace FirstPersonController
 {
     public sealed class PlayerLookUpDown : MonoBehaviour
     {
-        private IFloatIntent _look;
+        private ILookUpDownIntent _look;
 
         [SerializeField]
-        private FloatIntentSO _intent = default;
+        private LookUpDownIntentSO _intent = default;
 
         private float _pitch = 0f;
 

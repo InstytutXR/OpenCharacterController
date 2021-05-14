@@ -5,10 +5,10 @@ namespace FirstPersonController
 {
     public sealed class PlayerTurn : MonoBehaviour
     {
-        private IFloatIntent _turn;
+        private ITurnIntent _turn;
 
         [SerializeField]
-        private FloatIntentSO _intent = default;
+        private TurnIntentSO _intent = default;
 
         private void OnEnable()
         {

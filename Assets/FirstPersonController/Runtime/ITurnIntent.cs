@@ -1,6 +1,6 @@
 ﻿namespace FirstPersonController
 {
-    public interface IFloatIntent
+    public interface ITurnIntent
     {
         float amount { get; }
     }
