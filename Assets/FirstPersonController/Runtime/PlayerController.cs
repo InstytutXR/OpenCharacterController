@@ -14,6 +14,8 @@ namespace FirstPersonController
         private float _targetEyeHeight;
         private readonly List<PlayerAbility> _abilityInstances = new List<PlayerAbility>();
 
+        [Header("Movement")]
+
         [SerializeField]
         private float _acceleration = 2f;
 
@@ -23,8 +25,12 @@ namespace FirstPersonController
         [SerializeField]
         private float _airControl = 20f;
 
+        [Header("Collision")]
+
         [SerializeField]
         private float _defaultColliderHeight = 1.7f;
+
+        [Header("Eyes")]
 
         [SerializeField]
         private float _defaultEyeHeight = 1.6f;
@@ -40,6 +46,8 @@ namespace FirstPersonController
 
         [SerializeField]
         private float _cameraCollisionRadius = 0.2f;
+
+        [Space]
 
         [SerializeField]
         private PlayerAbilitySO[] _abilities = default;
