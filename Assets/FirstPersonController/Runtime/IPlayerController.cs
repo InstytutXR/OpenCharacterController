@@ -8,6 +8,8 @@ namespace FirstPersonController
         Vector3 groundNormal { get; }
         PhysicMaterial groundMaterial { get; }
         float cameraCollisionRadius { get; }
+        Transform turnTransform { get; }
+        Transform lookUpDownTransform { get; }
         Transform leanTransform { get; }
         bool canStandUp { get; }
         bool grounded { get; set; }

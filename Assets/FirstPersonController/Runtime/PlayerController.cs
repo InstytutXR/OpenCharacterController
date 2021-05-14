@@ -42,6 +42,12 @@ namespace FirstPersonController
         private Transform _eyeHeightTransform = default;
 
         [SerializeField]
+        private Transform _turnTransform = default;
+
+        [SerializeField]
+        private Transform _lookUpDownTransform = default;
+
+        [SerializeField]
         private Transform _leanTransform = default;
 
         [SerializeField]
@@ -59,6 +65,8 @@ namespace FirstPersonController
         public Vector3 groundNormal => _lastGroundHit.normal;
         public PhysicMaterial groundMaterial => _lastGroundHit.collider.material;
         public float cameraCollisionRadius => _cameraCollisionRadius;
+        public Transform turnTransform => _turnTransform;
+        public Transform lookUpDownTransform => _lookUpDownTransform;
         public Transform leanTransform => _leanTransform;
         public LayerMask layerMask => 1 << gameObject.layer;
 
@@ -160,9 +168,20 @@ namespace FirstPersonController
         {
             CheckForGround();
             AddGravity();
-            UpdateAbilities();
+            FixedUpdateAbilities();
             ApplyVelocityToBody();
             AdjustEyeHeight();
+        }
+
+        private void Update()
+        {
+            foreach (var ability in _abilityInstances)
+            {
+                if (ability.isActive || ability.updatesWhenNotActive)
+                {
+                    ability.Update();
+                }
+            }
         }
 
         private void CheckForGround()
@@ -209,7 +228,7 @@ namespace FirstPersonController
             verticalVelocity += Physics.gravity.y * Time.deltaTime;
         }
 
-        private void UpdateAbilities()
+        private void FixedUpdateAbilities()
         {
             bool isBlocked = false;
 

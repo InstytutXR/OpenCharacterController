@@ -39,5 +39,9 @@
         public virtual void FixedUpdate()
         {
         }
+
+        public virtual void Update()
+        {
+        }
     }
 }
