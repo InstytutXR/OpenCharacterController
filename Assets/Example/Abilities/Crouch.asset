@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcf6934e77bfef843a24a43d61a3accc, type: 3}
+  m_Script: {fileID: 11500000, guid: 9c4cdf14052bb413caaccd46f98711b5, type: 3}
   m_Name: Crouch
   m_EditorClassIdentifier: 
   _colliderHeight: 0.9

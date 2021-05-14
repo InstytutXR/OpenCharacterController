@@ -8,17 +8,19 @@ namespace FirstPersonController
     [Serializable]
     public sealed class PlayerAbilities : IEnumerable<PlayerAbility>
     {
-        [SerializeReference] 
         private List<PlayerAbility> _abilities = new List<PlayerAbility>();
+
+        [SerializeField] 
+        private List<PlayerAbilitySO> _abilityAssets = new List<PlayerAbilitySO>();
 
         public void Initialize(
             IPlayerController controller,
             IPlayerControllerInput input
         )
         {
-            foreach (var ability in _abilities)
+            foreach (var so in _abilityAssets)
             {
-                ability.Initialize(controller, input);
+                _abilities.Add(so.CreateAbility(controller, input));
             }
         }
 

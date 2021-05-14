@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e949a16df4aa6749a3f9f9c03d0e2a1, type: 3}
+  m_Script: {fileID: 11500000, guid: 56cb93dd9e2714b0e9e8db4a5fd8615e, type: 3}
   m_Name: Slide
   m_EditorClassIdentifier: 
-  speedRequiredToSlide: 3.5
-  colliderHeight: 0.9
-  eyeHeight: 0.8
-  groundFriction: 0.8
-  groundFrictionCombine: 1
-  playerMass: 10
-  speedThresholdToExit: 0.8
+  _speedRequiredToSlide: 3.5
+  _colliderHeight: 0.9
+  _eyeHeight: 0.8
+  _groundFriction: 0.8
+  _groundFrictionCombine: 1
+  _playerMass: 10
+  _speedThresholdToExit: 0.8

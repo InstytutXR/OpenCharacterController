@@ -234,7 +234,7 @@ MonoBehaviour:
   _leanTransform: {fileID: 2937256456387002755}
   _cameraCollisionRadius: 0.2
   _abilities:
-    _abilities:
+    _abilityAssets:
     - {fileID: 11400000, guid: b1bd0d2e719fd0040931d9c65115f95f, type: 2}
     - {fileID: 11400000, guid: ea7aba55a3f9c1145854f4961331a88a, type: 2}
     - {fileID: 11400000, guid: a05df7b3e8ddb30438fb704336f9b333, type: 2}
@@ -377,7 +377,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 0
-    m_SensorSize: {x: 1, y: 1}
+    m_SensorSize: {x: 1.7066115, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

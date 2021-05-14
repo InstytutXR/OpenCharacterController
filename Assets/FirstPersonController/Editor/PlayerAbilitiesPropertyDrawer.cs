@@ -20,7 +20,7 @@ namespace FirstPersonController
 
         private static ReorderableList CreateList(SerializedProperty property)
         {
-            var abilitiesProp = property.FindPropertyRelative("_abilities");
+            var abilitiesProp = property.FindPropertyRelative("_abilityAssets");
             var list = new ReorderableList(
                 abilitiesProp.serializedObject,
                 abilitiesProp,

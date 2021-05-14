@@ -1,30 +1,14 @@
-﻿using System;
-using UnityEngine;
-
-namespace FirstPersonController
+﻿namespace FirstPersonController
 {
-    public abstract class PlayerAbility : ScriptableObject
+    public abstract class PlayerAbility
     {
         public bool isActive { get; private set; }
-
-        protected IPlayerController controller { get; private set; }
-
-        protected IPlayerControllerInput input { get; private set; }
 
         public virtual bool isBlocking => false;
 
         public virtual bool updatesWhenNotActive => false;
 
         public virtual bool canActivate => true;
-
-        public void Initialize(
-            IPlayerController playerController, 
-            IPlayerControllerInput playerInput
-        )
-        {
-            controller = playerController;
-            input = playerInput;
-        }
 
         public void TryActivate()
         {
