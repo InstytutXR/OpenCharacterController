@@ -5,20 +5,33 @@ namespace FirstPersonController
 {
     public sealed class PlayerTurn : MonoBehaviour
     {
-        private Transform _transform = default;
-        private IPlayerTurnInput _input = default;
+        private IFloatIntent _turn;
+
+        [SerializeField]
+        private FloatIntentSO _intent = default;
 
         private void OnEnable()
         {
-            _transform = transform;
-            _input = GetComponentInParent<IPlayerTurnInput>();
+            _turn = _intent.Create();
         }
 
         private void Update()
         {
-            var yaw = _transform.localEulerAngles.y;
-            yaw = Repeat(yaw + _input.lookHorizontal, 360f);
-            _transform.localEulerAngles = new Vector3(0, yaw, 0);
+            var yaw = transform.localEulerAngles.y;
+            yaw = Repeat(yaw + _turn.amount, 360f);
+            transform.localEulerAngles = new Vector3(0, yaw, 0);
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            // Handle reference changes to the intent in the editor during playmode
+            // by recreating the intent.
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                _turn = _intent.Create();
+            }
+        }
+#endif
     }
 }

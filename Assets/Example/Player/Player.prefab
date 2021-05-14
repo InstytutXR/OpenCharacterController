@@ -107,6 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb2095221625ddf45ad176c94bb81544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _intent: {fileID: 11400000, guid: d81301fa8ef49ba419a500868b3740a2, type: 2}
   minPitch: -85
   maxPitch: 85
 --- !u!114 &7726719935621917203
@@ -252,6 +253,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f80ec8fe590c93f419d253cdc367f738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _intent: {fileID: 11400000, guid: 91a10ea7cf4d380408a49087b8705a7a, type: 2}
 --- !u!114 &6453351816349043348
 MonoBehaviour:
   m_ObjectHideFlags: 0
