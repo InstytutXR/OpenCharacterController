@@ -2,11 +2,11 @@
 
 namespace FirstPersonController
 {
-    [CreateAssetMenu(menuName = "First Person Controller/Abilities/Look Up and Down")]
-    public sealed class LookUpDownSO : PlayerAbilitySO
+    [CreateAssetMenu(menuName = "First Person Controller/Abilities/Look")]
+    public sealed class LookSO : PlayerAbilitySO
     {
         [SerializeField]
-        private LookUpDownIntentSO _intent;
+        private LookIntentSO _intent;
 
         [SerializeField, Tooltip("The minimum pitch value allowed, specified in degrees.")]
         private float _minPitch = -85f;
@@ -21,7 +21,7 @@ namespace FirstPersonController
             IPlayerControllerInput input
         )
         {
-            return new LookUpDown(controller, this, _intent.Create());
+            return new Look(controller, _intent.Create(), this);
         }
     }
 }

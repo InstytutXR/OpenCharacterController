@@ -207,7 +207,6 @@ MonoBehaviour:
   _cameraCollisionRadius: 0.2
   _abilities:
   - {fileID: 11400000, guid: e6edbe83aa42b6a42898749e79b9d784, type: 2}
-  - {fileID: 11400000, guid: 95d3c0b16dc56f146902bf68587d5216, type: 2}
   - {fileID: 11400000, guid: b1bd0d2e719fd0040931d9c65115f95f, type: 2}
   - {fileID: 11400000, guid: ea7aba55a3f9c1145854f4961331a88a, type: 2}
   - {fileID: 11400000, guid: a05df7b3e8ddb30438fb704336f9b333, type: 2}

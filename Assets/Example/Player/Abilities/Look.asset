@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ac99d2a424c20e4286b58ba4117e10b, type: 3}
-  m_Name: Look Up and Down
+  m_Script: {fileID: 11500000, guid: eff1c8c20eba2df4a8333ba89c8c19d1, type: 3}
+  m_Name: Look
   m_EditorClassIdentifier: 
-  _intent: {fileID: 11400000, guid: d81301fa8ef49ba419a500868b3740a2, type: 2}
-  _minPitch: -85
-  _maxPitch: 85
+  _intent: {fileID: 11400000, guid: 91a10ea7cf4d380408a49087b8705a7a, type: 2}

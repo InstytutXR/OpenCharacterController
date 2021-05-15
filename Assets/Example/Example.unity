@@ -4900,6 +4900,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1730139548453687447, guid: f86f559271f91964ba0373ef82bce4e3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -30.65
+      objectReference: {fileID: 0}
     - target: {fileID: 9064350301729783158, guid: f86f559271f91964ba0373ef82bce4e3,
         type: 3}
       propertyPath: m_Name
@@ -4963,7 +4968,7 @@ PrefabInstance:
     - target: {fileID: 9064350303357003500, guid: f86f559271f91964ba0373ef82bce4e3,
         type: 3}
       propertyPath: m_Lens.m_SensorSize.x
-      value: 1.7778733
+      value: 1.7774915
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f86f559271f91964ba0373ef82bce4e3, type: 3}
