@@ -31,7 +31,7 @@ namespace FirstPersonController
                 pitch -= 360.0f;
             }
 
-            pitch = Mathf.Clamp(pitch + _intent.amount.y, _so.minPitch, _so.maxPitch);
+            pitch = Mathf.Clamp(pitch + _intent.amount.y, -_so.maxAngleUp, _so.maxAngleDown);
             _controller.lookUpDownTransform.localEulerAngles = new Vector3(pitch, 0, 0);
         }
     }

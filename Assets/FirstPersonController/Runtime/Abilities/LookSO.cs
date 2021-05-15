@@ -8,13 +8,13 @@ namespace FirstPersonController
         [SerializeField]
         private LookIntentSO _intent;
 
-        [SerializeField, Tooltip("The minimum pitch value allowed, specified in degrees.")]
-        private float _minPitch = -85f;
-        public float minPitch => _minPitch;
+        [SerializeField, Range(0f, 90f), Tooltip("The maximum angle the player can look up, specified in degrees.")]
+        private float _maxAngleUp = 85f;
+        public float maxAngleUp => _maxAngleUp;
 
-        [SerializeField, Tooltip("The maximum pitch value allowed, specified in degrees.")]
-        private float _maxPitch = 85f;
-        public float maxPitch => _maxPitch;
+        [SerializeField, Range(0f, 90f), Tooltip("The maximum angle the player can look down, specified in degrees.")]
+        private float _maxAngleDown = 85f;
+        public float maxAngleDown => _maxAngleDown;
 
         public override PlayerAbility CreateAbility(
             IPlayerController controller,
