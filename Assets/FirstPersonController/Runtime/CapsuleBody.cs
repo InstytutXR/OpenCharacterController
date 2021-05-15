@@ -227,7 +227,9 @@ namespace FirstPersonController
          )
         {
             const float PaddingForFloatingPointErrors = 0.001f;
-            var maximumDistance = _capsuleCenter.y + PaddingForFloatingPointErrors;
+
+            var sphereCastHeight = _stepHeight + _radius;
+            var maximumDistance = sphereCastHeight + PaddingForFloatingPointErrors;
 
             if (stickToGround)
             {
@@ -236,7 +238,7 @@ namespace FirstPersonController
 
             maximumDistance -= _radius;
 
-            var origin = position + _capsuleCenter;
+            var origin = position + Vector3.up * sphereCastHeight;
             var hitGround = Physics.SphereCast(
                 origin,
                 _radius,
@@ -258,7 +260,7 @@ namespace FirstPersonController
                     hit.distance -= cylinderCorrection;
                 }
 
-                verticalMovementApplied = _capsuleCenter.y - hit.distance - _radius;
+                verticalMovementApplied = sphereCastHeight - hit.distance - _radius;
 
                 // Raycasts are interesting here. We want to provide a
                 // RaycastHit to the caller so they have the normal and other
