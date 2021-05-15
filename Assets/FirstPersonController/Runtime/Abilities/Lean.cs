@@ -8,6 +8,9 @@ namespace FirstPersonController
         private readonly IPlayerControllerInput _input;
         private readonly LeanSO _so;
 
+        public override bool canActivate => true;
+        public override bool updatesWhenNotActive => true;
+
         public Lean(
             IPlayerController controller,
             IPlayerControllerInput input,
@@ -18,8 +21,6 @@ namespace FirstPersonController
             _input = input;
             _so = so;
         }
-
-        public override bool updatesWhenNotActive => true;
 
         public override void FixedUpdate()
         {

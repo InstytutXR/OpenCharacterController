@@ -8,7 +8,7 @@
 
         public virtual bool updatesWhenNotActive => false;
 
-        public virtual bool canActivate => true;
+        public abstract bool canActivate { get; }
 
         public void TryActivate()
         {
