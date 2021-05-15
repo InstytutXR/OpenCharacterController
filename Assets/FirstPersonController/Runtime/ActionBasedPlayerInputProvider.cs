@@ -10,12 +10,14 @@ namespace FirstPersonController
         , IPlayerControllerInput
     {
         private InputAction _moveActionRef;
+        private InputAction _lookActionRef;
         private InputAction _jumpActionRef;
         private InputAction _runActionRef;
         private InputAction _crouchActionRef;
         private InputAction _leanActionRef;
 
         private Vector2 _move;
+        private Vector2 _look;
         private bool _jump;
         private bool _run;
         private bool _crouch;
@@ -23,6 +25,9 @@ namespace FirstPersonController
 
         [SerializeField, Tooltip("An action that provides a Vector2 for moving.")]
         private InputActionReference _moveAction;
+
+        [SerializeField, Tooltip("An action that provides a Vector2 for looking.")]
+        private InputActionReference _lookAction;
 
         [SerializeField, Tooltip("A button action for jumping.")]
         private InputActionReference _jumpAction;
@@ -37,6 +42,7 @@ namespace FirstPersonController
         private InputActionReference _leanAction;
 
         public Vector2 moveInput => _move;
+        public Vector2 lookInput => _look;
         public bool jump => _jump;
         public bool run => _run;
         public bool crouch => _crouch;
@@ -45,6 +51,7 @@ namespace FirstPersonController
         private void OnEnable()
         {
             _move = Vector2.zero;
+            _look = Vector2.zero;
             _jump = false;
             _run = false;
             _crouch = false;
@@ -63,6 +70,13 @@ namespace FirstPersonController
             {
                 _moveActionRef.performed += OnMovePerformed;
                 _moveActionRef.canceled += OnMoveCanceled;
+            }
+
+            _lookActionRef = playerInput.actions.FindAction(_lookAction.action.id);
+            if (_lookActionRef != null)
+            {
+                _lookActionRef.performed += OnLookPerformed;
+                _lookActionRef.canceled += OnLookCanceled;
             }
 
             _jumpActionRef = playerInput.actions.FindAction(_jumpAction.action.id);
@@ -102,6 +116,12 @@ namespace FirstPersonController
                 _moveActionRef.canceled -= OnMoveCanceled;
             }
 
+            if (_lookActionRef != null)
+            {
+                _lookActionRef.performed -= OnLookPerformed;
+                _lookActionRef.canceled -= OnLookCanceled;
+            }
+
             if (_jumpActionRef != null)
             {
                 _jumpActionRef.performed -= OnJumpPerformed;
@@ -129,6 +149,8 @@ namespace FirstPersonController
 
         private void OnMovePerformed(InputAction.CallbackContext ctx) => _move = ctx.ReadValue<Vector2>();
         private void OnMoveCanceled(InputAction.CallbackContext ctx) => _move = Vector2.zero;
+        private void OnLookPerformed(InputAction.CallbackContext ctx) => _look = ctx.ReadValue<Vector2>();
+        private void OnLookCanceled(InputAction.CallbackContext ctx) => _look = Vector2.zero;
         private void OnJumpPerformed(InputAction.CallbackContext ctx) => _jump = true;
         private void OnJumpCanceled(InputAction.CallbackContext ctx) => _jump = false;
         private void OnRunPerformed(InputAction.CallbackContext ctx) => _run = true;
