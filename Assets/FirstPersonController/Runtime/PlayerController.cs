@@ -67,7 +67,6 @@ namespace FirstPersonController
         public Transform turnTransform => _turnTransform;
         public Transform lookUpDownTransform => _lookUpDownTransform;
         public Transform leanTransform => _leanTransform;
-        public LayerMask layerMask => 1 << gameObject.layer;
 
         public bool canStandUp
         {

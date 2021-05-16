@@ -15,7 +15,6 @@ namespace FirstPersonController
         bool grounded { get; set; }
         float verticalVelocity { get; set; }
         Vector3 controlVelocity { get; set; }
-        LayerMask layerMask { get; }
         void ResetHeight();
         void ChangeHeight(float colliderHeight, float eyeHeight);
         void ApplyUserInputMovement(Vector2 direction, PlayerSpeed playerSpeed);

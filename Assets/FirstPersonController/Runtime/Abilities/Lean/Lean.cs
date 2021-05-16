@@ -54,8 +54,7 @@ namespace FirstPersonController
                     ray,
                     _controller.cameraCollisionRadius,
                     out var hit,
-                    targetEyeLocalPos.magnitude,
-                    ~_controller.layerMask
+                    targetEyeLocalPos.magnitude
                 );
 
                 if (didHit && desiredEyePosThisFrame.sqrMagnitude > (hit.distance * hit.distance))
