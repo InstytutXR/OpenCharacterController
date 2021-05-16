@@ -180,7 +180,9 @@ MonoBehaviour:
     type: 3}
   _runAction: {fileID: 1373441269579839609, guid: dc78ceb06e851a74c9a4494bfcdf210d,
     type: 3}
-  _crouchAction: {fileID: -540412817707373601, guid: dc78ceb06e851a74c9a4494bfcdf210d,
+  _crouchHoldAction: {fileID: -540412817707373601, guid: dc78ceb06e851a74c9a4494bfcdf210d,
+    type: 3}
+  _crouchToggleAction: {fileID: 8323968631660163566, guid: dc78ceb06e851a74c9a4494bfcdf210d,
     type: 3}
   _leanAction: {fileID: -8125644084441013366, guid: dc78ceb06e851a74c9a4494bfcdf210d,
     type: 3}

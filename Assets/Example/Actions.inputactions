@@ -38,9 +38,17 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Crouch",
+                    "name": "Crouch (Hold)",
                     "type": "Button",
                     "id": "5d6eefc7-b3f9-49d3-a18c-58d2af4e4f3d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Crouch (Toggle)",
+                    "type": "Button",
+                    "id": "6585585e-8f3b-4131-9414-eca72448f56a",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -150,18 +158,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard + Mouse",
-                    "action": "Crouch",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7d56c87f-1656-4932-8de3-eef7aa2cb391",
-                    "path": "<Keyboard>/c",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Crouch",
+                    "action": "Crouch (Hold)",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -197,6 +194,17 @@
                     "action": "Lean",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "ac249d5e-2dcd-4f81-bc8a-1e5b4bfd786f",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Crouch (Toggle)",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

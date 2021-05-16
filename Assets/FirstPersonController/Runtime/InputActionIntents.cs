@@ -24,7 +24,8 @@ namespace FirstPersonController
         private InputAction _lookActionRef;
         private InputAction _jumpActionRef;
         private InputAction _runActionRef;
-        private InputAction _crouchActionRef;
+        private InputAction _crouchHoldActionRef;
+        private InputAction _crouchToggleActionRef;
         private InputAction _leanActionRef;
 
         private Vector2 _move;
@@ -46,8 +47,11 @@ namespace FirstPersonController
         [SerializeField, Tooltip("A button action for running.")]
         private InputActionReference _runAction;
 
-        [SerializeField, Tooltip("A button action for crouching.")]
-        private InputActionReference _crouchAction;
+        [SerializeField, Tooltip("A button action that must be held to crouch.")]
+        private InputActionReference _crouchHoldAction;
+
+        [SerializeField, Tooltip("A button action that toggles crouching.")]
+        private InputActionReference _crouchToggleAction;
 
         [SerializeField, Tooltip("A 1D axis for leaning left and right.")]
         private InputActionReference _leanAction;
@@ -79,46 +83,73 @@ namespace FirstPersonController
              * from the PlayerInput are handled properly by our code as well.
              */
 
-            _moveActionRef = playerInput.actions.FindAction(_moveAction.action.id);
-            if (_moveActionRef != null)
+            if (_moveAction)
             {
-                _moveActionRef.performed += OnMovePerformed;
-                _moveActionRef.canceled += OnMoveCanceled;
+                _moveActionRef = playerInput.actions.FindAction(_moveAction.action.id);
+                if (_moveActionRef != null)
+                {
+                    _moveActionRef.performed += OnMovePerformed;
+                    _moveActionRef.canceled += OnMoveCanceled;
+                }
             }
 
-            _lookActionRef = playerInput.actions.FindAction(_lookAction.action.id);
-            if (_lookActionRef != null)
+            if (_lookAction)
             {
-                _lookActionRef.performed += OnLookPerformed;
-                _lookActionRef.canceled += OnLookCanceled;
+                _lookActionRef = playerInput.actions.FindAction(_lookAction.action.id);
+                if (_lookActionRef != null)
+                {
+                    _lookActionRef.performed += OnLookPerformed;
+                    _lookActionRef.canceled += OnLookCanceled;
+                }
             }
 
-            _jumpActionRef = playerInput.actions.FindAction(_jumpAction.action.id);
-            if (_jumpActionRef != null)
+            if (_jumpAction)
             {
-                _jumpActionRef.performed += OnJumpPerformed;
-                _jumpActionRef.canceled += OnJumpCanceled;
+                _jumpActionRef = playerInput.actions.FindAction(_jumpAction.action.id);
+                if (_jumpActionRef != null)
+                {
+                    _jumpActionRef.performed += OnJumpPerformed;
+                    _jumpActionRef.canceled += OnJumpCanceled;
+                }
             }
 
-            _runActionRef = playerInput.actions.FindAction(_runAction.action.id);
-            if (_runActionRef != null)
+            if (_runAction)
             {
-                _runActionRef.performed += OnRunPerformed;
-                _runActionRef.canceled += OnRunCanceled;
+                _runActionRef = playerInput.actions.FindAction(_runAction.action.id);
+                if (_runActionRef != null)
+                {
+                    _runActionRef.performed += OnRunPerformed;
+                    _runActionRef.canceled += OnRunCanceled;
+                }
             }
 
-            _crouchActionRef = playerInput.actions.FindAction(_crouchAction.action.id);
-            if (_crouchActionRef != null)
+            if (_crouchHoldAction)
             {
-                _crouchActionRef.performed += OnCrouchPerformed;
-                _crouchActionRef.canceled += OnCrouchCanceled;
+                _crouchHoldActionRef = playerInput.actions.FindAction(_crouchHoldAction.action.id);
+                if (_crouchHoldActionRef != null)
+                {
+                    _crouchHoldActionRef.performed += OnCrouchHoldPerformed;
+                    _crouchHoldActionRef.canceled += OnCrouchHoldCanceled;
+                }
             }
 
-            _leanActionRef = playerInput.actions.FindAction(_leanAction.action.id);
-            if (_leanActionRef != null)
+            if (_crouchToggleAction)
             {
-                _leanActionRef.performed += OnLeanPerformed;
-                _leanActionRef.canceled += OnLeanCanceled;
+                _crouchToggleActionRef = playerInput.actions.FindAction(_crouchToggleAction.action.id);
+                if (_crouchToggleActionRef != null)
+                {
+                    _crouchToggleActionRef.performed += OnCrouchTogglePerformed;
+                }
+            }
+
+            if (_leanAction)
+            {
+                _leanActionRef = playerInput.actions.FindAction(_leanAction.action.id);
+                if (_leanActionRef != null)
+                {
+                    _leanActionRef.performed += OnLeanPerformed;
+                    _leanActionRef.canceled += OnLeanCanceled;
+                }
             }
         }
 
@@ -148,10 +179,15 @@ namespace FirstPersonController
                 _runActionRef.canceled -= OnRunCanceled;
             }
 
-            if (_crouchActionRef != null)
+            if (_crouchHoldActionRef != null)
             {
-                _crouchActionRef.performed -= OnCrouchPerformed;
-                _crouchActionRef.canceled -= OnCrouchCanceled;
+                _crouchHoldActionRef.performed -= OnCrouchHoldPerformed;
+                _crouchHoldActionRef.canceled -= OnCrouchHoldCanceled;
+            }
+
+            if (_crouchToggleActionRef != null)
+            {
+                _crouchToggleActionRef.performed -= OnCrouchTogglePerformed;
             }
 
             if (_leanActionRef != null)
@@ -161,18 +197,72 @@ namespace FirstPersonController
             }
         }
 
-        private void OnMovePerformed(InputAction.CallbackContext ctx) => _move = ctx.ReadValue<Vector2>();
-        private void OnMoveCanceled(InputAction.CallbackContext ctx) => _move = Vector2.zero;
-        private void OnLookPerformed(InputAction.CallbackContext ctx) => _look = ctx.ReadValue<Vector2>();
-        private void OnLookCanceled(InputAction.CallbackContext ctx) => _look = Vector2.zero;
-        private void OnJumpPerformed(InputAction.CallbackContext ctx) => _jump = true;
-        private void OnJumpCanceled(InputAction.CallbackContext ctx) => _jump = false;
-        private void OnRunPerformed(InputAction.CallbackContext ctx) => _run = true;
-        private void OnRunCanceled(InputAction.CallbackContext ctx) => _run = false;
-        private void OnCrouchPerformed(InputAction.CallbackContext ctx) => _crouch = true;
-        private void OnCrouchCanceled(InputAction.CallbackContext ctx) => _crouch = false;
-        private void OnLeanPerformed(InputAction.CallbackContext ctx) => _lean = ctx.ReadValue<float>();
-        private void OnLeanCanceled(InputAction.CallbackContext ctx) => _lean = 0;
+        private void OnMovePerformed(InputAction.CallbackContext ctx)
+        {
+            _move = ctx.ReadValue<Vector2>();
+        }
+
+        private void OnMoveCanceled(InputAction.CallbackContext ctx)
+        {
+            _move = Vector2.zero;
+        }
+
+        private void OnLookPerformed(InputAction.CallbackContext ctx)
+        {
+            _look = ctx.ReadValue<Vector2>();
+        }
+
+        private void OnLookCanceled(InputAction.CallbackContext ctx)
+        {
+            _look = Vector2.zero;
+        }
+
+        private void OnJumpPerformed(InputAction.CallbackContext ctx)
+        {
+            _jump = true;
+            _crouch = false;
+        }
+
+        private void OnJumpCanceled(InputAction.CallbackContext ctx)
+        {
+            _jump = false;
+        }
+
+        private void OnRunPerformed(InputAction.CallbackContext ctx)
+        {
+            _run = true;
+            _crouch = false;
+        }
+
+        private void OnRunCanceled(InputAction.CallbackContext ctx)
+        {
+            _run = false;
+        }
+
+        private void OnCrouchHoldPerformed(InputAction.CallbackContext ctx)
+        {
+            _crouch = true;
+        }
+
+        private void OnCrouchHoldCanceled(InputAction.CallbackContext ctx)
+        {
+            _crouch = false;
+        }
+
+        private void OnCrouchTogglePerformed(InputAction.CallbackContext ctx)
+        {
+            _crouch = !_crouch;
+        }
+
+        private void OnLeanPerformed(InputAction.CallbackContext ctx)
+        {
+            _lean = ctx.ReadValue<float>();
+        }
+
+        private void OnLeanCanceled(InputAction.CallbackContext ctx)
+        {
+            _lean = 0;
+        }
     }
 }
 
