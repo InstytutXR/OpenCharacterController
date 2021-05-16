@@ -12,13 +12,13 @@ namespace FirstPersonController
     /// </summary>
     public sealed class InputActionIntents
         : MonoBehaviour
-        , IMoveIntent
         , ILookIntent
         , IJumpIntent
         , IRunIntent
         , ICrouchIntent
         , ISlideIntent
         , ILeanIntent
+        , IWalkIntent
     {
         private InputAction _moveActionRef;
         private InputAction _lookActionRef;
@@ -56,7 +56,6 @@ namespace FirstPersonController
         [SerializeField, Tooltip("A 1D axis for leaning left and right.")]
         private InputActionReference _leanAction;
 
-        public Vector2 moveAmount => _move;
         public Vector2 lookAmount => _look;
         public bool wantsToJump => _jump;
         public bool wantsToStartRunning => _run;
@@ -65,6 +64,9 @@ namespace FirstPersonController
         public bool wantsToStopCrouching => !_crouch;
         public bool wantsToSlide => _crouch;
         public float leanAmount => _lean;
+
+        // Used for walk, run, and crouch intents
+        public Vector2 moveDirection => _move;
 
         private void OnEnable()
         {

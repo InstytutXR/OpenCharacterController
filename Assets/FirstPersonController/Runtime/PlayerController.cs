@@ -7,7 +7,6 @@ namespace FirstPersonController
     public sealed class PlayerController : MonoBehaviour, IPlayerController
     {
         private Transform _transform;
-        private IMoveIntent _moveIntent;
         private CapsuleBody _body;
         private RaycastHit _lastGroundHit;
         private Vector3 _velocity;
@@ -95,7 +94,7 @@ namespace FirstPersonController
             _targetEyeHeight = eyeHeight;
         }
 
-        public void ApplyUserInputMovement(PlayerSpeed playerSpeed)
+        public void ApplyUserInputMovement(Vector2 moveInput, PlayerSpeed playerSpeed)
         {
             var movementRotation = Quaternion.Euler(0, _transform.eulerAngles.y, 0);
             if (grounded)
@@ -107,7 +106,6 @@ namespace FirstPersonController
                 movementRotation = groundOrientation * movementRotation;
             }
 
-            var moveInput = _moveIntent.moveAmount;
             var moveVelocity = movementRotation * new Vector3(moveInput.x, 0, moveInput.y);
 
             var targetSpeed = Mathf.Lerp(
@@ -165,7 +163,6 @@ namespace FirstPersonController
         private void OnEnable()
         {
             _transform = transform;
-            _moveIntent = GetIntent<IMoveIntent>();
             _body = GetComponent<CapsuleBody>();
         }
 

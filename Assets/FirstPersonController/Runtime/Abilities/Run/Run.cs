@@ -24,7 +24,7 @@
 
         public override void FixedUpdate()
         {
-            _controller.ApplyUserInputMovement(_so.speed);
+            _controller.ApplyUserInputMovement(_intent.moveDirection, _so.speed);
 
             if (_intent.wantsToStopRunning)
             {

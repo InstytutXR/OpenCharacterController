@@ -18,7 +18,7 @@ namespace FirstPersonController
         LayerMask layerMask { get; }
         void ResetHeight();
         void ChangeHeight(float colliderHeight, float eyeHeight);
-        void ApplyUserInputMovement(PlayerSpeed playerSpeed);
+        void ApplyUserInputMovement(Vector2 direction, PlayerSpeed playerSpeed);
         void ApplyAirDrag();
         Vector3 TransformDirection(Vector3 direction);
 
