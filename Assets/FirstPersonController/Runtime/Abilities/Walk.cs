@@ -5,10 +5,10 @@
         private readonly IPlayerController _controller;
         private readonly WalkSO _so;
 
-        public Walk(IPlayerController controller, WalkSO walkSO)
+        public Walk(IPlayerController controller, WalkSO so)
         {
             _controller = controller;
-            _so = walkSO;
+            _so = so;
         }
 
         public override bool isBlocking => true;

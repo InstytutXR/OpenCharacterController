@@ -5,9 +5,20 @@ using UnityEngine.InputSystem;
 
 namespace FirstPersonController
 {
-    public sealed class ActionBasedPlayerInputProvider
+    /// <summary>
+    /// A default implementation of the built-in player intents using the Unity Input System
+    /// and Input Actions to map to the intents. Use of this component is not required and
+    /// games can create their own intent implementations to match their specific needs.
+    /// </summary>
+    public sealed class InputActionIntents
         : MonoBehaviour
-        , IPlayerControllerInput
+        , IMoveIntent
+        , ILookIntent
+        , IJumpIntent
+        , IRunIntent
+        , ICrouchIntent
+        , ISlideIntent
+        , ILeanIntent
     {
         private InputAction _moveActionRef;
         private InputAction _lookActionRef;
@@ -41,12 +52,15 @@ namespace FirstPersonController
         [SerializeField, Tooltip("A 1D axis for leaning left and right.")]
         private InputActionReference _leanAction;
 
-        public Vector2 moveInput => _move;
-        public Vector2 lookInput => _look;
-        public bool jump => _jump;
-        public bool run => _run;
-        public bool crouch => _crouch;
-        public float lean => _lean;
+        public Vector2 moveAmount => _move;
+        public Vector2 lookAmount => _look;
+        public bool wantsToJump => _jump;
+        public bool wantsToStartRunning => _run;
+        public bool wantsToStopRunning => !_run;
+        public bool wantsToStartCrouching => _crouch;
+        public bool wantsToStopCrouching => !_crouch;
+        public bool wantsToSlide => _crouch;
+        public float leanAmount => _lean;
 
         private void OnEnable()
         {

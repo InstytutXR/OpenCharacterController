@@ -21,12 +21,9 @@ namespace FirstPersonController
         private float _leanAnimationSpeed = 10f;
         public float leanAnimationSpeed => _leanAnimationSpeed;
 
-        public override PlayerAbility CreateAbility(
-            IPlayerController controller,
-            IPlayerControllerInput input
-        )
+        public override PlayerAbility CreateAbility(IPlayerController controller)
         {
-            return new Lean(controller, input, this);
+            return new Lean(controller, this);
         }
     }
 }

@@ -5,23 +5,21 @@ namespace FirstPersonController
     public class Slide : PlayerAbility
     {
         private readonly IPlayerController _controller;
-        private readonly IPlayerControllerInput _input;
+        private readonly ISlideIntent _intent;
         private readonly SlideSO _so;
 
-        public Slide(
-            IPlayerController controller,
-            IPlayerControllerInput input,
-            SlideSO so
-        )
+        public Slide(IPlayerController controller, SlideSO so)
         {
             _controller = controller;
-            _input = input;
+            _intent = _controller.GetIntent<ISlideIntent>();
             _so = so;
         }
 
         public override bool isBlocking => true;
 
-        public override bool canActivate => _input.crouch && _controller.speed >= _so.speedRequiredToSlide;
+        public override bool canActivate => 
+            _intent.wantsToSlide && 
+            _controller.speed >= _so.speedRequiredToSlide;
 
         public override void OnActivate()
         {

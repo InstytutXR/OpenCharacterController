@@ -33,12 +33,9 @@ namespace FirstPersonController
         private float _speedThresholdToExit = 0.8f;
         public float speedThresholdToExit => _speedThresholdToExit;
 
-        public override PlayerAbility CreateAbility(
-            IPlayerController controller,
-            IPlayerControllerInput input
-        )
+        public override PlayerAbility CreateAbility(IPlayerController controller)
         {
-            return new Slide(controller, input, this);
+            return new Slide(controller, this);
         }
     }
 }

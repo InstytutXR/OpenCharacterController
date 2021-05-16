@@ -13,12 +13,9 @@ namespace FirstPersonController
         private float _maxAngleDown = 85f;
         public float maxAngleDown => _maxAngleDown;
 
-        public override PlayerAbility CreateAbility(
-            IPlayerController controller,
-            IPlayerControllerInput input
-        )
+        public override PlayerAbility CreateAbility(IPlayerController controller)
         {
-            return new Look(controller, input, this);
+            return new Look(controller, this);
         }
     }
 }

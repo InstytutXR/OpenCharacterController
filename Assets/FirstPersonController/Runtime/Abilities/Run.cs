@@ -3,23 +3,19 @@
     public class Run : PlayerAbility
     {
         private readonly IPlayerController _controller;
-        private readonly IPlayerControllerInput _input;
+        private readonly IRunIntent _intent;
         private readonly RunSO _so;
 
-        public Run(
-            IPlayerController controller,
-            IPlayerControllerInput input,
-            RunSO so
-        )
+        public Run(IPlayerController controller, RunSO so)
         {
             _controller = controller;
-            _input = input;
+            _intent = _controller.GetIntent<IRunIntent>();
             _so = so;
         }
 
         public override bool isBlocking => true;
 
-        public override bool canActivate => _input.run && _controller.canStandUp;
+        public override bool canActivate => _intent.wantsToStartRunning && _controller.canStandUp;
 
         public override void OnActivate()
         {
@@ -30,7 +26,7 @@
         {
             _controller.ApplyUserInputMovement(_so.speed);
 
-            if (!_input.run)
+            if (_intent.wantsToStopRunning)
             {
                 Deactivate();
             }

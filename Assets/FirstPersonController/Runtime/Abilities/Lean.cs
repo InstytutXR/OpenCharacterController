@@ -5,20 +5,16 @@ namespace FirstPersonController
     public class Lean : PlayerAbility
     {
         private readonly IPlayerController _controller;
-        private readonly IPlayerControllerInput _input;
+        private readonly ILeanIntent _intent;
         private readonly LeanSO _so;
 
         public override bool canActivate => true;
         public override bool updatesWhenNotActive => true;
 
-        public Lean(
-            IPlayerController controller,
-            IPlayerControllerInput input,
-            LeanSO so
-        )
+        public Lean(IPlayerController controller, LeanSO so)
         {
             _controller = controller;
-            _input = input;
+            _intent = _controller.GetIntent<ILeanIntent>();
             _so = so;
         }
 
@@ -26,7 +22,7 @@ namespace FirstPersonController
         {
             // Because we update when not active, we need to be careful
             // when we apply input.
-            var amount = isActive ? _input.lean : 0;
+            var amount = isActive ? _intent.leanAmount : 0;
             var leanTransform = _controller.leanTransform;
 
             var eyeLocalRot = leanTransform.localEulerAngles;

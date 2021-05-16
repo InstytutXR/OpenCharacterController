@@ -7,7 +7,7 @@ namespace FirstPersonController
     public sealed class PlayerController : MonoBehaviour, IPlayerController
     {
         private Transform _transform;
-        private IPlayerControllerInput _input;
+        private IMoveIntent _moveIntent;
         private CapsuleBody _body;
         private RaycastHit _lastGroundHit;
         private Vector3 _velocity;
@@ -107,7 +107,7 @@ namespace FirstPersonController
                 movementRotation = groundOrientation * movementRotation;
             }
 
-            var moveInput = _input.moveInput;
+            var moveInput = _moveIntent.moveAmount;
             var moveVelocity = movementRotation * new Vector3(moveInput.x, 0, moveInput.y);
 
             var targetSpeed = Mathf.Lerp(
@@ -148,11 +148,16 @@ namespace FirstPersonController
             return transform.TransformDirection(direction);
         }
 
+        public TIntent GetIntent<TIntent>() where TIntent : IIntent
+        {
+            return GetComponent<TIntent>();
+        }
+
         private void Start()
         {
             foreach (var so in _abilities)
             {
-                _abilityInstances.Add(so.CreateAbility(this, _input));
+                _abilityInstances.Add(so.CreateAbility(this));
             }
             ResetHeight();
         }
@@ -160,7 +165,7 @@ namespace FirstPersonController
         private void OnEnable()
         {
             _transform = transform;
-            _input = GetComponent<IPlayerControllerInput>();
+            _moveIntent = GetIntent<IMoveIntent>();
             _body = GetComponent<CapsuleBody>();
         }
 

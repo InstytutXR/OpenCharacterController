@@ -9,12 +9,9 @@ namespace FirstPersonController
         private float _height = 1.5f;
         public float height => _height;
 
-        public override PlayerAbility CreateAbility(
-            IPlayerController playerController,
-            IPlayerControllerInput playerInput
-        )
+        public override PlayerAbility CreateAbility(IPlayerController playerController)
         {
-            return new Jump(playerController, playerInput, this);
+            return new Jump(playerController, this);
         }
     }
 }

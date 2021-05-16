@@ -9,12 +9,9 @@ namespace FirstPersonController
         private PlayerSpeed _speed = new PlayerSpeed(6f, 0.9f, 0.6f);
         public PlayerSpeed speed => _speed;
 
-        public override PlayerAbility CreateAbility(
-            IPlayerController controller,
-            IPlayerControllerInput input
-        )
+        public override PlayerAbility CreateAbility(IPlayerController controller)
         {
-            return new Run(controller, input, this);
+            return new Run(controller, this);
         }
     }
 }

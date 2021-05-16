@@ -4,19 +4,16 @@
     {
         private readonly CrouchSO _so;
         private readonly IPlayerController _controller;
-        private readonly IPlayerControllerInput _input;
+        private readonly ICrouchIntent _intent;
 
         public override bool isBlocking => true;
 
-        public override bool canActivate => _input.crouch || !_controller.canStandUp;
+        public override bool canActivate => _intent.wantsToStartCrouching || !_controller.canStandUp;
 
-        public Crouch(
-            IPlayerController controller,
-            IPlayerControllerInput input,
-            CrouchSO so)
+        public Crouch(IPlayerController controller, CrouchSO so)
         {
             _controller = controller;
-            _input = input;
+            _intent = controller.GetIntent<ICrouchIntent>();
             _so = so;
         }
 
@@ -34,7 +31,7 @@
         {
             _controller.ApplyUserInputMovement(_so.speed);
 
-            if (!_input.crouch && _controller.canStandUp)
+            if (_intent.wantsToStopCrouching && _controller.canStandUp)
             {
                 Deactivate();
             }

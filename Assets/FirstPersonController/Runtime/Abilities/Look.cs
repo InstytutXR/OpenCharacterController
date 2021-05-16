@@ -5,22 +5,22 @@ namespace FirstPersonController
     public class Look : PlayerAbility
     {
         private readonly IPlayerController _controller;
-        private readonly IPlayerControllerInput _input;
+        private readonly ILookIntent _intent;
         private readonly LookSO _so;
 
         public override bool canActivate => true;
 
-        public Look(IPlayerController controller, IPlayerControllerInput input, LookSO so)
+        public Look(IPlayerController controller, LookSO so)
         {
             _controller = controller;
-            _input = input;
+            _intent = _controller.GetIntent<ILookIntent>();
             _so = so;
         }
 
         public override void Update()
         {
             var yaw = _controller.turnTransform.localEulerAngles.y;
-            yaw = Mathf.Repeat(yaw + _input.lookInput.x, 360f);
+            yaw = Mathf.Repeat(yaw + _intent.lookAmount.x, 360f);
             _controller.turnTransform.localEulerAngles = new Vector3(0, yaw, 0);
 
             var pitch = _controller.lookUpDownTransform.localEulerAngles.x;
@@ -31,7 +31,7 @@ namespace FirstPersonController
                 pitch -= 360.0f;
             }
 
-            pitch = Mathf.Clamp(pitch + _input.lookInput.y, -_so.maxAngleUp, _so.maxAngleDown);
+            pitch = Mathf.Clamp(pitch + _intent.lookAmount.y, -_so.maxAngleUp, _so.maxAngleDown);
             _controller.lookUpDownTransform.localEulerAngles = new Vector3(pitch, 0, 0);
         }
     }

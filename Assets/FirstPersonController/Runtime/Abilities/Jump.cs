@@ -5,21 +5,17 @@ namespace FirstPersonController
     public class Jump : PlayerAbility
     {
         private readonly IPlayerController _controller;
-        private readonly IPlayerControllerInput _input;
+        private readonly IJumpIntent _intent;
         private readonly JumpSO _so;
 
-        public Jump(
-            IPlayerController playerController,
-            IPlayerControllerInput playerInput,
-            JumpSO jumpSO
-        )
+        public Jump(IPlayerController controller, JumpSO so)
         {
-            _controller = playerController;
-            _input = playerInput;
-            _so = jumpSO;
+            _controller = controller;
+            _intent = _controller.GetIntent<IJumpIntent>();
+            _so = so;
         }
 
-        public override bool canActivate => _controller.grounded && _input.jump;
+        public override bool canActivate => _controller.grounded && _intent.wantsToJump;
 
         public override void OnActivate()
         {

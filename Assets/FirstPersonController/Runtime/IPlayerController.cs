@@ -21,5 +21,7 @@ namespace FirstPersonController
         void ApplyUserInputMovement(PlayerSpeed playerSpeed);
         void ApplyAirDrag();
         Vector3 TransformDirection(Vector3 direction);
+
+        TIntent GetIntent<TIntent>() where TIntent : IIntent;
     }
 }
