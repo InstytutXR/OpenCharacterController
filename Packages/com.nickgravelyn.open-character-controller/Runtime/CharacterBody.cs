@@ -6,7 +6,7 @@ using UnityEditor;
 
 namespace OpenCharacterController
 {
-    public sealed class CapsuleBody : MonoBehaviour
+    public sealed class CharacterBody : MonoBehaviour
     {
         private readonly Collider[] _overlapColliders = new Collider[16];
 

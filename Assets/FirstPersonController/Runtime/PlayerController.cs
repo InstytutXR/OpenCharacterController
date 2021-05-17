@@ -4,11 +4,11 @@ using OpenCharacterController;
 
 namespace FirstPersonController
 {
-    [RequireComponent(typeof(CapsuleBody))]
+    [RequireComponent(typeof(CharacterBody))]
     public sealed class PlayerController : MonoBehaviour, IPlayerController
     {
         private Transform _transform;
-        private CapsuleBody _body;
+        private CharacterBody _body;
         private RaycastHit _lastGroundHit;
         private Vector3 _velocity;
         private float _targetEyeHeight;
@@ -163,7 +163,7 @@ namespace FirstPersonController
         private void OnEnable()
         {
             _transform = transform;
-            _body = GetComponent<CapsuleBody>();
+            _body = GetComponent<CharacterBody>();
         }
 
         private void FixedUpdate()
