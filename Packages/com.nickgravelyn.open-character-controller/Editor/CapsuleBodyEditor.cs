@@ -1,12 +1,12 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace FirstPersonController
+namespace OpenCharacterController.Editor
 {
     // This editor exists solely to provide the frame bounds so that pressing F
     // in the viewport correctly frames the character.
     [CustomEditor(typeof(CapsuleBody)), CanEditMultipleObjects]
-    public class CapsuleBodyEditor : Editor
+    public class CapsuleBodyEditor : UnityEditor.Editor
     {
         private bool HasFrameBounds() => true;
 

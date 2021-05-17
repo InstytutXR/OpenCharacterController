@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace FirstPersonController
+namespace OpenCharacterController
 {
     public sealed class CapsuleBody : MonoBehaviour
     {

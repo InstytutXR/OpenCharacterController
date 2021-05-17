@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.nickgravelyn.open-character-controller": {
+      "version": "file:com.nickgravelyn.open-character-controller",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.cinemachine": {
       "version": "2.7.3",
       "depth": 0,
