@@ -4,6 +4,7 @@
     "displayName": "Open Character Controller",
     "description": "An open source base library for building high quality character controllers.",
     "unity": "2021.1",
+    "license": "MIT",
     "author": {
         "name" : "Nick Gravelyn",
         "email" : "hello@nickgravelyn.com",
