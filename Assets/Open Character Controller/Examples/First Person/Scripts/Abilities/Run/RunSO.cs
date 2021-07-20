@@ -7,8 +7,8 @@ namespace FirstPersonController
     public sealed class RunSO : PlayerAbilitySO
     {
         [SerializeField]
-        private PlayerSpeed _speed = new PlayerSpeed(6f, 0.9f, 0.6f);
-        public PlayerSpeed speed => _speed;
+        private CharacterSpeed _speed = new CharacterSpeed(6f, 0.9f, 0.6f);
+        public CharacterSpeed speed => _speed;
 
         public override PlayerAbility CreateAbility(IPlayerController controller)
         {

@@ -15,8 +15,8 @@ namespace FirstPersonController
         public float eyeHeight => _eyeHeight;
 
         [SerializeField]
-        private PlayerSpeed _speed = new PlayerSpeed(0.8f, 1f, 1f);
-        public PlayerSpeed speed => _speed;
+        private CharacterSpeed _speed = new CharacterSpeed(0.8f, 1f, 1f);
+        public CharacterSpeed speed => _speed;
 
         public override PlayerAbility CreateAbility(IPlayerController controller)
         {
