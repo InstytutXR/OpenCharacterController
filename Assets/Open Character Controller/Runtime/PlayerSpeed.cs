@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace FirstPersonController
+namespace OpenCharacterController
 {
     [Serializable]
     public struct PlayerSpeed
