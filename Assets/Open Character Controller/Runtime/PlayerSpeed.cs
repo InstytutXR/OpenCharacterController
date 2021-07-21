@@ -4,7 +4,7 @@ using UnityEngine;
 namespace OpenCharacterController
 {
     [Serializable]
-    public struct CharacterSpeed
+    public struct PlayerSpeed
     {
         [SerializeField]
         [Tooltip("Full speed (meters/second) the player moves forward.")]
@@ -20,7 +20,7 @@ namespace OpenCharacterController
         [Range(0f, 1f)]
         private float _backwardModifier;
 
-        public CharacterSpeed(float forwardSpeed, float sidewaysModifier, float backwardModifier)
+        public PlayerSpeed(float forwardSpeed, float sidewaysModifier, float backwardModifier)
         {
             _forwardSpeed = forwardSpeed;
             _sidewaysModifier = sidewaysModifier;

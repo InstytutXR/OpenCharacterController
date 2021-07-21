@@ -94,7 +94,7 @@ namespace FirstPersonController
             _targetEyeHeight = eyeHeight;
         }
 
-        public void ApplyUserInputMovement(Vector2 moveInput, CharacterSpeed playerSpeed)
+        public void ApplyUserInputMovement(Vector2 moveInput, PlayerSpeed playerSpeed)
         {
             var movementRotation = Quaternion.Euler(0, _transform.eulerAngles.y, 0);
             if (grounded)

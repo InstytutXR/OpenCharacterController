@@ -18,7 +18,7 @@ namespace FirstPersonController
         Vector3 controlVelocity { get; set; }
         void ResetHeight();
         void ChangeHeight(float colliderHeight, float eyeHeight);
-        void ApplyUserInputMovement(Vector2 direction, CharacterSpeed playerSpeed);
+        void ApplyUserInputMovement(Vector2 direction, PlayerSpeed playerSpeed);
         void ApplyAirDrag();
         Vector3 TransformDirection(Vector3 direction);
 
