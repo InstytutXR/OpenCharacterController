@@ -10,6 +10,10 @@
 
         public abstract bool canActivate { get; }
 
+        public virtual void OnStart(IPlayerController controller)
+        {
+        }
+
         public void TryActivate()
         {
             if (!isActive && canActivate)

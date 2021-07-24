@@ -1,25 +1,36 @@
-﻿namespace OpenCharacterController.Examples
+﻿using System;
+using UnityEngine;
+
+namespace OpenCharacterController.Examples
 {
+    [Serializable]
     public class Crouch : PlayerAbility
     {
-        private readonly CrouchSO _so;
-        private readonly IPlayerController _controller;
-        private readonly ICrouchIntent _intent;
+        private IPlayerController _controller;
+        private ICrouchIntent _intent;
+
+        [SerializeField]
+        private float _colliderHeight = 0.9f;
+
+        [SerializeField]
+        private float _eyeHeight = 0.8f;
+
+        [SerializeField]
+        private PlayerSpeed _speed = new PlayerSpeed(0.8f, 1f, 1f);
 
         public override bool isBlocking => true;
 
         public override bool canActivate => _intent.wantsToStartCrouching || !_controller.canStandUp;
 
-        public Crouch(IPlayerController controller, CrouchSO so)
+        public override void OnStart(IPlayerController controller)
         {
             _controller = controller;
             _intent = controller.GetIntent<ICrouchIntent>();
-            _so = so;
         }
 
         public override void OnActivate()
         {
-            _controller.ChangeHeight(_so.colliderHeight, _so.eyeHeight);
+            _controller.ChangeHeight(_colliderHeight, _eyeHeight);
         }
 
         public override void OnDeactivate()
@@ -29,7 +40,7 @@
 
         public override void FixedUpdate()
         {
-            _controller.ApplyUserInputMovement(_intent.moveDirection, _so.speed);
+            _controller.ApplyUserInputMovement(_intent.moveDirection, _speed);
 
             if (_intent.wantsToStopCrouching && _controller.canStandUp)
             {

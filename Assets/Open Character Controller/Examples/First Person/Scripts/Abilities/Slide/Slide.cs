@@ -1,30 +1,53 @@
 ﻿using UnityEngine;
 using OpenCharacterController;
+using System;
 
 namespace OpenCharacterController.Examples
 {
+    [Serializable]
     public class Slide : PlayerAbility
     {
-        private readonly IPlayerController _controller;
-        private readonly ISlideIntent _intent;
-        private readonly SlideSO _so;
+        private IPlayerController _controller;
+        private ISlideIntent _intent;
 
-        public Slide(IPlayerController controller, SlideSO so)
-        {
-            _controller = controller;
-            _intent = _controller.GetIntent<ISlideIntent>();
-            _so = so;
-        }
+        [SerializeField]
+        private float _speedRequiredToSlide = 3.5f;
+
+        [SerializeField]
+        private float _colliderHeight = 0.9f;
+
+        [SerializeField]
+        private float _eyeHeight = 0.8f;
+
+        [SerializeField]
+        private float _groundFriction = 0.8f;
+
+        [SerializeField]
+        private PhysicMaterialCombine _groundFrictionCombine = PhysicMaterialCombine.Multiply;
+
+        [SerializeField]
+        private float _playerMass = 10f;
+
+        [SerializeField]
+        private float _speedThresholdToExit = 0.8f;
 
         public override bool isBlocking => true;
 
         public override bool canActivate => 
             _intent.wantsToSlide && 
-            _controller.speed >= _so.speedRequiredToSlide;
+            _controller.speed >= _speedRequiredToSlide;
+
+        public float SpeedRequiredToSlide { get => _speedRequiredToSlide; set => _speedRequiredToSlide = value; }
+
+        public override void OnStart(IPlayerController controller)
+        {
+            _controller = controller;
+            _intent = _controller.GetIntent<ISlideIntent>();
+        }
 
         public override void OnActivate()
         {
-            _controller.ChangeHeight(_so.colliderHeight, _so.eyeHeight);
+            _controller.ChangeHeight(_colliderHeight, _eyeHeight);
         }
 
         public override void OnDeactivate()
@@ -43,9 +66,9 @@ namespace OpenCharacterController.Examples
                 _controller.controlVelocity = CustomPhysics.ApplyGroundFrictionToVelocity(
                     _controller.groundMaterial,
                     _controller.controlVelocity,
-                    _so.groundFrictionCombine,
-                    _so.groundFriction,
-                    _so.playerMass
+                    _groundFrictionCombine,
+                    _groundFriction,
+                    _playerMass
                 );
             }
             else
@@ -53,7 +76,7 @@ namespace OpenCharacterController.Examples
                 _controller.ApplyAirDrag();
             }
 
-            if (_controller.speed <= _so.speedThresholdToExit)
+            if (_controller.speed <= _speedThresholdToExit)
             {
                 Deactivate();
             }

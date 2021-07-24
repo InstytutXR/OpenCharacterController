@@ -1,21 +1,26 @@
-﻿namespace OpenCharacterController.Examples
+﻿using System;
+using UnityEngine;
+
+namespace OpenCharacterController.Examples
 {
+    [Serializable]
     public class Walk : PlayerAbility
     {
-        private readonly IPlayerController _controller;
-        private readonly IWalkIntent _intent;
-        private readonly WalkSO _so;
+        private IPlayerController _controller;
+        private IWalkIntent _intent;
 
-        public Walk(IPlayerController controller, WalkSO so)
-        {
-            _controller = controller;
-            _intent = _controller.GetIntent<IWalkIntent>();
-            _so = so;
-        }
+        [SerializeField]
+        private PlayerSpeed _speed = new PlayerSpeed(2f, 1f, 0.95f);
 
         public override bool isBlocking => true;
 
         public override bool canActivate => _controller.canStandUp;
+
+        public override void OnStart(IPlayerController controller)
+        {
+            _controller = controller;
+            _intent = _controller.GetIntent<IWalkIntent>();
+        }
 
         public override void OnActivate()
         {
@@ -24,7 +29,7 @@
 
         public override void FixedUpdate()
         {
-            _controller.ApplyUserInputMovement(_intent.moveDirection, _so.speed);
+            _controller.ApplyUserInputMovement(_intent.moveDirection, _speed);
         }
     }
 }

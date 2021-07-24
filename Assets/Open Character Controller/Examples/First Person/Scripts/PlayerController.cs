@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using OpenCharacterController;
 
 namespace OpenCharacterController.Examples
 {
@@ -12,7 +11,7 @@ namespace OpenCharacterController.Examples
         private RaycastHit _lastGroundHit;
         private Vector3 _velocity;
         private float _targetEyeHeight;
-        private readonly List<PlayerAbility> _abilityInstances = new List<PlayerAbility>();
+        private readonly List<PlayerAbility> _abilities = new List<PlayerAbility>();
 
         [Header("Movement")]
 
@@ -53,10 +52,28 @@ namespace OpenCharacterController.Examples
         [SerializeField]
         private float _cameraCollisionRadius = 0.2f;
 
-        [Space]
+        [Header("Ability Settings")]
 
         [SerializeField]
-        private PlayerAbilitySO[] _abilities = default;
+        private Look _look = default;
+
+        [SerializeField]
+        private Slide _slide = default;
+
+        [SerializeField]
+        private Jump _jump = default;
+
+        [SerializeField]
+        private Run _run = default;
+
+        [SerializeField]
+        private Lean _lean = default;
+
+        [SerializeField]
+        private Crouch _crouch = default;
+
+        [SerializeField]
+        private Walk _walk = default;
 
         public bool grounded { get; set; }
         public float verticalVelocity { get; set; }
@@ -153,10 +170,23 @@ namespace OpenCharacterController.Examples
 
         private void Start()
         {
-            foreach (var so in _abilities)
+            // Order here is important since abilities are handled in order and can block
+            // subsequent abilities from being able to activate. For example, since lean
+            // is added after run, if you start running it will stop leaning and prevent
+            // the player from starting to lean.
+            _abilities.Add(_look);
+            _abilities.Add(_slide);
+            _abilities.Add(_jump);
+            _abilities.Add(_run);
+            _abilities.Add(_lean);
+            _abilities.Add(_crouch);
+            _abilities.Add(_walk);
+
+            foreach (var ability in _abilities)
             {
-                _abilityInstances.Add(so.CreateAbility(this));
+                ability.OnStart(this);
             }
+
             ResetHeight();
         }
 
@@ -177,7 +207,7 @@ namespace OpenCharacterController.Examples
 
         private void Update()
         {
-            foreach (var ability in _abilityInstances)
+            foreach (var ability in _abilities)
             {
                 if (ability.isActive || ability.updatesWhenNotActive)
                 {
@@ -234,7 +264,7 @@ namespace OpenCharacterController.Examples
         {
             bool isBlocked = false;
 
-            foreach (var ability in _abilityInstances)
+            foreach (var ability in _abilities)
             {
                 if (isBlocked)
                 {

@@ -1,20 +1,26 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace OpenCharacterController.Examples
 {
+    [Serializable]
     public class Look : PlayerAbility
     {
-        private readonly IPlayerController _controller;
-        private readonly ILookIntent _intent;
-        private readonly LookSO _so;
+        private IPlayerController _controller;
+        private ILookIntent _intent;
+
+        [SerializeField, Range(0f, 90f), Tooltip("The maximum angle the player can look up, specified in degrees.")]
+        private float _maxAngleUp = 85f;
+
+        [SerializeField, Range(0f, 90f), Tooltip("The maximum angle the player can look down, specified in degrees.")]
+        private float _maxAngleDown = 85f;
 
         public override bool canActivate => true;
 
-        public Look(IPlayerController controller, LookSO so)
+        public override void OnStart(IPlayerController controller)
         {
             _controller = controller;
             _intent = _controller.GetIntent<ILookIntent>();
-            _so = so;
         }
 
         public override void Update()
@@ -31,7 +37,7 @@ namespace OpenCharacterController.Examples
                 pitch -= 360.0f;
             }
 
-            pitch = Mathf.Clamp(pitch + _intent.lookAmount.y, -_so.maxAngleUp, _so.maxAngleDown);
+            pitch = Mathf.Clamp(pitch + _intent.lookAmount.y, -_maxAngleUp, _maxAngleDown);
             _controller.lookUpDownTransform.localEulerAngles = new Vector3(pitch, 0, 0);
         }
     }

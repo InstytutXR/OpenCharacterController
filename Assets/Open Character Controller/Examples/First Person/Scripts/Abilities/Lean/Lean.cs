@@ -1,21 +1,33 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace OpenCharacterController.Examples
 {
+    [Serializable]
     public class Lean : PlayerAbility
     {
-        private readonly IPlayerController _controller;
-        private readonly ILeanIntent _intent;
-        private readonly LeanSO _so;
+        private IPlayerController _controller;
+        private ILeanIntent _intent;
+
+        [SerializeField]
+        private float _leanDistanceX = 0.65f;
+
+        [SerializeField]
+        private float _leanDistanceY = -.05f;
+
+        [SerializeField]
+        private float _leanAngle = 10f;
+
+        [SerializeField]
+        private float _leanAnimationSpeed = 10f;
 
         public override bool canActivate => true;
         public override bool updatesWhenNotActive => true;
 
-        public Lean(IPlayerController controller, LeanSO so)
+        public override void OnStart(IPlayerController controller)
         {
             _controller = controller;
             _intent = _controller.GetIntent<ILeanIntent>();
-            _so = so;
         }
 
         public override void FixedUpdate()
@@ -28,19 +40,19 @@ namespace OpenCharacterController.Examples
             var eyeLocalRot = leanTransform.localEulerAngles;
             var desiredEyeRotThisFrame = Mathf.LerpAngle(
                 eyeLocalRot.z,
-                -amount * _so.leanAngle,
-                _so.leanAnimationSpeed * Time.deltaTime
+                -amount * _leanAngle,
+                _leanAnimationSpeed * Time.deltaTime
             );
 
             var targetEyeLocalPos = new Vector3(
-                amount * _so.leanDistanceX,
-                Mathf.Abs(amount) * _so.leanDistanceY,
+                amount * _leanDistanceX,
+                Mathf.Abs(amount) * _leanDistanceY,
                 0
             );
             var desiredEyePosThisFrame = Vector3.Lerp(
                 leanTransform.localPosition,
                 targetEyeLocalPos,
-                _so.leanAnimationSpeed * Time.deltaTime
+                _leanAnimationSpeed * Time.deltaTime
             );
 
             if (amount != 0)
@@ -66,8 +78,8 @@ namespace OpenCharacterController.Examples
                     // Scale rotation to be the same percentage as our distance
                     desiredEyeRotThisFrame = Mathf.LerpAngle(
                         eyeLocalRot.z,
-                        -amount * _so.leanAngle * (hit.distance / targetEyeLocalPos.magnitude),
-                        _so.leanAnimationSpeed * Time.deltaTime
+                        -amount * _leanAngle * (hit.distance / targetEyeLocalPos.magnitude),
+                        _leanAnimationSpeed * Time.deltaTime
                     );
                 }
             }
@@ -76,7 +88,7 @@ namespace OpenCharacterController.Examples
                 desiredEyePosThisFrame = Vector3.Lerp(
                     leanTransform.localPosition,
                     Vector3.zero,
-                    _so.leanAnimationSpeed * Time.deltaTime
+                    _leanAnimationSpeed * Time.deltaTime
                 );
             }
 
