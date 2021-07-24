@@ -3,23 +3,28 @@ using UnityEngine;
 
 namespace OpenCharacterController.Examples
 {
+    public interface IWalkIntent : IIntent
+    {
+        Vector2 moveDirection { get; }
+    }
+
     [Serializable]
-    public class Run : PlayerAbility
+    public class Walk : PlayerAbility
     {
         private IPlayerController _controller;
-        private IRunIntent _intent;
+        private IWalkIntent _intent;
 
         [SerializeField]
-        private PlayerSpeed _speed = new PlayerSpeed(6f, 0.9f, 0.6f);
+        private PlayerSpeed _speed = new PlayerSpeed(2f, 1f, 0.95f);
 
         public override bool isBlocking => true;
 
-        public override bool canActivate => _intent.wantsToStartRunning && _controller.canStandUp;
+        public override bool canActivate => _controller.canStandUp;
 
         public override void OnStart(IPlayerController controller)
         {
             _controller = controller;
-            _intent = _controller.GetIntent<IRunIntent>();
+            _intent = _controller.GetIntent<IWalkIntent>();
         }
 
         public override void OnActivate()
@@ -30,11 +35,6 @@ namespace OpenCharacterController.Examples
         public override void FixedUpdate()
         {
             _controller.ApplyUserInputMovement(_intent.moveDirection, _speed);
-
-            if (_intent.wantsToStopRunning)
-            {
-                Deactivate();
-            }
         }
     }
 }

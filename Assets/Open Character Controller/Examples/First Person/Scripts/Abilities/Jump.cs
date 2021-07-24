@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace OpenCharacterController.Examples
 {
+    public interface IJumpIntent : IIntent
+    {
+        bool wantsToJump { get; }
+    }
+
     [Serializable]
     public class Jump : PlayerAbility
     {

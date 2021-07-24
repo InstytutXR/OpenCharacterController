@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace OpenCharacterController.Examples
 {
+    public interface ILeanIntent : IIntent
+    {
+        float leanAmount { get; }
+    }
+
     [Serializable]
     public class Lean : PlayerAbility
     {

@@ -3,6 +3,11 @@ using System;
 
 namespace OpenCharacterController.Examples
 {
+    public interface ISlideIntent : IIntent
+    {
+        bool wantsToSlide { get; }
+    }
+
     [Serializable]
     public class Slide : PlayerAbility
     {
