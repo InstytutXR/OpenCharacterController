@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using OpenCharacterController;
 using System;
 
 namespace OpenCharacterController.Examples
