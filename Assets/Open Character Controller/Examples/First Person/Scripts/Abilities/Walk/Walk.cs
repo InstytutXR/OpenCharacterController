@@ -1,4 +1,4 @@
-﻿namespace FirstPersonController
+﻿namespace OpenCharacterController.Examples
 {
     public class Walk : PlayerAbility
     {

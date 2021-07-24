@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FirstPersonController
+namespace OpenCharacterController.Examples
 {
     [CreateAssetMenu(menuName = "First Person Controller/Abilities/Slide")]
     public sealed class SlideSO : PlayerAbilitySO

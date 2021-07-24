@@ -3,7 +3,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace FirstPersonController
+namespace OpenCharacterController.Examples
 {
     /// <summary>
     /// A default implementation of the built-in player intents using the Unity Input System

@@ -2,7 +2,7 @@
 using UnityEngine;
 using OpenCharacterController;
 
-namespace FirstPersonController
+namespace OpenCharacterController.Examples
 {
     [RequireComponent(typeof(CharacterBody))]
     public sealed class PlayerController : MonoBehaviour, IPlayerController

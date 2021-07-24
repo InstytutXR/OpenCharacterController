@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FirstPersonController
+namespace OpenCharacterController.Examples
 {
     public interface IRunIntent : IIntent
     {

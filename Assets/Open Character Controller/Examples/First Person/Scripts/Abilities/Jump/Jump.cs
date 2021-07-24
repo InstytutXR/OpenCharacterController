@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FirstPersonController
+namespace OpenCharacterController.Examples
 {
     public class Jump : PlayerAbility
     {

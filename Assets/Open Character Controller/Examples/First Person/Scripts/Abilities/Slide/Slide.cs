@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using OpenCharacterController;
 
-namespace FirstPersonController
+namespace OpenCharacterController.Examples
 {
     public class Slide : PlayerAbility
     {

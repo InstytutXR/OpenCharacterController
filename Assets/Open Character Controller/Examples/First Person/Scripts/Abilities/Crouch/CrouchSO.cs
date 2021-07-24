@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FirstPersonController
+namespace OpenCharacterController.Examples
 {
     [CreateAssetMenu(menuName = "First Person Controller/Abilities/Crouch")]
     public sealed class CrouchSO : PlayerAbilitySO
