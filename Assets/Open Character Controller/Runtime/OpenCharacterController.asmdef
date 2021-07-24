@@ -1,5 +1,5 @@
 {
-    "name": "OpenCharacterController.Runtime",
+    "name": "OpenCharacterController",
     "rootNamespace": "OpenCharacterController",
     "references": [],
     "includePlatforms": [],
