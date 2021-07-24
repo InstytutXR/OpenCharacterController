@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace OpenCharacterController.Examples
+namespace OpenCharacterController
 {
     public sealed class HideAndLockCursor : MonoBehaviour
     {
