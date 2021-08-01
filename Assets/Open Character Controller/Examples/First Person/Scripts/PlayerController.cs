@@ -58,6 +58,9 @@ namespace OpenCharacterController.Examples
         private Look _look = default;
 
         [SerializeField]
+        private SlideDownSlope _slideDownSlope = default;
+
+        [SerializeField]
         private Slide _slide = default;
 
         [SerializeField]
@@ -175,6 +178,7 @@ namespace OpenCharacterController.Examples
             // is added after run, if you start running it will stop leaning and prevent
             // the player from starting to lean.
             _abilities.Add(_look);
+            _abilities.Add(_slideDownSlope);
             _abilities.Add(_slide);
             _abilities.Add(_jump);
             _abilities.Add(_run);
