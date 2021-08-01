@@ -15,18 +15,6 @@ My goal with Open Character Controller is to provide a set of building blocks an
 On top of that I'm working to build a framework for the character controllers themselves. The hope is to have something that, while potentially requiring code to set up, makes it easy to assemble a character controller meeting the needs of a game without a lot of manual toil work.
 
 
-## Current status
+## Runtime vs Examples
 
-Currently I'm focused on first person player movement abilities. I've implemented the following so far:
-
-- Walk
-- Run
-- Crouch
-- Jump
-- Lean 
-- Slide
-
-I'm hoping to eventually add climbing up/down ladders and mantling to the list.
-
-Once movement is feeling solid I plan to move into more interaction based systems like opening doors, inspecting items, and some form of holding things in first person (be it a flashlight, a gun, etc).
-
+Currently there is code in both a "Runtime" folder and an "Examples" folder. The idea is that a game can omit the entire "Examples" folder and get what I consider to be the core of this framework. Player controllers are highly game specific and I want to be careful about putting too much into the core systems that won't be highly reusable, hence building things out as example code instea. That said, as code and systems in the examples folder stabilize and appear to be reusable, I will be moving more into the Runtime folder.
